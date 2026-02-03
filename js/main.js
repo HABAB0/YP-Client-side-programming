@@ -131,7 +131,9 @@ Vue.component('product-review', {
              <p>
                <input type="submit" value="Submit"> 
              </p>
-        
+             <p>
+               <input type="submit" value="Submit"> 
+             </p>
         </form>
  `,
 
@@ -156,7 +158,8 @@ Vue.component('product-review', {
                 this.name = null
                 this.review = null
                 this.rating = null
-            } else {
+                this.errors = []
+            } else if (this.errors.length <= 0) {
                 if(!this.name) this.errors.push("Name required.")
                 if(!this.review) this.errors.push("Review required.")
                 if(!this.rating) this.errors.push("Rating required.")
