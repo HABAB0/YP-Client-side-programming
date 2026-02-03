@@ -99,6 +99,7 @@ Vue.component('product', {
 
 Vue.component('product-review', {
     template: `
+    <div>
         <form class="review-form" @submit.prevent="onSubmit">
             <p v-if="errors.length">
             <b>Please correct the following error(s):</b>
@@ -131,10 +132,13 @@ Vue.component('product-review', {
              <p>
                <input type="submit" value="Submit"> 
              </p>
-             <p>
-               <input type="submit" value="Submit"> 
-             </p>
-        </form>
+        </form> 
+        <button
+            @click="saveComment"
+        >
+            Save comment
+        </button> 
+    </div>
  `,
 
     data() {
@@ -142,7 +146,8 @@ Vue.component('product-review', {
             name: null,
             review: null,
             rating: null,
-            errors: []
+            errors: [],
+            commentData: [],
         }
     },
 
@@ -155,6 +160,26 @@ Vue.component('product-review', {
                     rating: this.rating
                 }
                 eventBus.$emit('review-submitted', productReview)
+                this.name = null
+                this.review = null
+                this.rating = null
+                this.errors = []
+            } else if (this.errors.length <= 0) {
+                if(!this.name) this.errors.push("Name required.")
+                if(!this.review) this.errors.push("Review required.")
+                if(!this.rating) this.errors.push("Rating required.")
+            }
+        },
+        saveComment() {
+            if(this.name && this.review && this.rating) {
+                let newComment = {
+                    name: this.name,
+                    review: this.review,
+                    rating: this.rating
+                }
+                this.commentData.push(newComment)
+                localStorage.setItem('commentData', JSON.stringify(this.commentData));
+                eventBus.$emit('comment-submitted', this.commentData)
                 this.name = null
                 this.review = null
                 this.rating = null
@@ -179,7 +204,7 @@ Vue.component('product-tabs', {
         },
         shipping: {
             type: String
-        }
+        },
     },
 
     template: `
@@ -214,14 +239,33 @@ Vue.component('product-tabs', {
                 <li v-for="detail in details">{{ detail }}</li>
             </ul>
         </div>
+        <div v-show="selectedTab === 'Saved comments'">
+            <p v-if="!showComment.length">There are no comments yet.</p>
+            <ul>
+                <li v-for="comment in showComment">
+                    <p>{{ comment.name }}</p>
+                    <p>Rating: {{ comment.rating }}</p>
+                    <p>{{ comment.review }}</p>
+                </li>
+            </ul>
+        </div>
     </div>
 `,
 
     data() {
         return {
-            tabs: ['Reviews', 'Make a Review', 'Shipping', 'Details'],
-            selectedTab: 'Reviews'
+            tabs: ['Reviews', 'Make a Review', 'Shipping', 'Details', 'Saved comments'],
+            selectedTab: 'Reviews',
+            showComment: []
         }
+    },
+    methods: {
+    },
+    mounted() {
+        this.showComment = (JSON.parse(localStorage.getItem('commentData')) || {})
+        eventBus.$on('comment-submitted', commentData  => {
+            this.showComment = commentData;
+        })
     }
 })
 
