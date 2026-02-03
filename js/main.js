@@ -19,20 +19,25 @@ Vue.component('product', {
            <p v-if="inStock">In stock</p>
            <p v-else>Out of Stock</p>
            <div
-                   class="color-box"
-                   v-for="(variant, index) in variants"
-                   :key="variant.variantId"
-                   :style="{ backgroundColor:variant.variantColor }"
-                   @mouseover="updateProduct(index)"
+               class="color-box"
+               v-for="(variant, index) in variants"
+               :key="variant.variantId"
+               :style="{ backgroundColor:variant.variantColor }"
+               @mouseover="updateProduct(index)"
            ></div>
-          
+           
+           <div style="position: relative; display: inline-block;">
            <button
-                   v-on:click="addToCart"
-                   :disabled="!inStock"
-                   :class="{ disabledButton: !inStock }"
+               id="cartButton"
+               v-on:click="addToCart"
+               :disabled="!inStock"
+               :class="{ disabledButton: !inStock }"
+               @click="animation"
+               style="position: relative; z-index: 1;"
            >
                Add to cart
-           </button>    
+           </button> 
+           </div> 
        </div>           
        <div>
             <product-tabs :shipping="shipping" :details="details" :reviews="reviews"/>
@@ -57,10 +62,11 @@ Vue.component('product', {
                     variantId: 2235,
                     variantColor: 'blue',
                     variantImage: "./assets/vmSocks-blue-onWhite.jpg",
-                    variantQuantity: 0
+                    variantQuantity: 5
                 }
             ],
-            reviews: []
+            reviews: [],
+            inUse: false,
         }
     },
     methods: {
@@ -70,6 +76,34 @@ Vue.component('product', {
         updateProduct(index) {
             this.selectedVariant = index;
             console.log(index);
+        },
+        animation() {
+            const img = document.createElement('img');
+            img.src = this.image;
+            img.alt = this.altText;
+            img.classList.add('toTrash');
+
+            const cartButton = document.getElementById('cartButton');
+            const cart = document.getElementById('cart');
+
+            const buttonPosition = cartButton.getBoundingClientRect();
+            const cartPosition = cart.getBoundingClientRect();
+
+            const cartPosX = cartPosition.left - buttonPosition.left;
+            const cartPosY = cartPosition.top - buttonPosition.top;
+
+            img.style.top = buttonPosition.top + 'px';
+            img.style.left = buttonPosition.left + 'px';
+
+            img.style.setProperty('--cartPosX', cartPosX + 'px');
+            img.style.setProperty('--cartPosY', cartPosY + 'px');
+
+            document.body.appendChild(img);
+
+            img.addEventListener('animationend', () => {
+                img.remove();
+            });
+
         },
     },
     computed: {

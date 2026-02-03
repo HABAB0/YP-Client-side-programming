@@ -91,3 +91,25 @@ textarea {
 .color {
     width: max-content
 }
+
+@keyframes flyToTrash {
+    0% {
+        transform: rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: rotate(0deg) translate(var(--cartPosX, 0px), var(--cartPosY, 0px));
+        opacity: 0;
+    }
+}
+
+.toTrash {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 80px;
+    height: auto;
+    z-index: 2;
+    border: none;
+    animation: flyToTrash 1s forwards;
+}
