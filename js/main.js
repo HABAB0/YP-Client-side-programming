@@ -1,9 +1,19 @@
 Vue.component('table', {
     props: {},
     template: `
+    <div>
+        <div v-for="task in tasks" class="paragraphs">
+            <div class="paragraphs__item" >
+                {{ task }}
+               <task></task>
+            </div>
+        </div>
+    </div>
  `,
     data() {
-        return {}
+        return {
+            tasks: ['Делать', 'сделать']
+        }
     },
     methods: {},
     computed: {},
@@ -13,17 +23,23 @@ Vue.component('table', {
 Vue.component('task', {
     props: {},
     template: `
-    <div v-for="paragraph in paragraphs"class="paragraphs">
-        <div class="paragraphs__item" >
-            {{ paragraph.description }}
-            <label>
-                <input type="checkbox" v-model="paragraph.checked">
-            </label>
+    <div>
+        <div v-for="paragraph in paragraphs" class="paragraphs">
+            <div class="paragraphs__item" >
+                {{ paragraph }}
+                <label>
+                    <input type="checkbox" v-model="paragraph.checked">
+                </label>
+            </div>
         </div>
     </div>
+    
  `,
     data() {
-        return {}
+        return {
+            paragraphs: ['это', 'то', 'чатыре'],
+
+        }
     },
     methods: {},
     computed: {},
