@@ -211,6 +211,7 @@ Vue.component('product-review', {
                     review: this.review,
                     rating: this.rating
                 }
+                this.commentData = (JSON.parse(localStorage.getItem('commentData')) || {})
                 this.commentData.push(newComment)
                 localStorage.setItem('commentData', JSON.stringify(this.commentData));
                 eventBus.$emit('comment-submitted', this.commentData)
@@ -300,6 +301,7 @@ Vue.component('product-tabs', {
         eventBus.$on('comment-submitted', commentData  => {
             this.showComment = commentData;
         })
+
     }
 })
 
