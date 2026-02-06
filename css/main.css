@@ -1,0 +1,33 @@
+* {
+    margin: 0;
+    padding: 0;
+
+}
+
+.column__container{
+    display: flex;
+    justify-content: space-between;
+    padding: 40px;
+    gap: 20px;
+    height: 100%;
+}
+
+.column__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    border: 1px solid black;
+    height: 100vh;
+    width: 100vw;
+    gap: 20px;
+}
+
+.card__item {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+    padding: 20px;
+    width: 80%;
+
+}
