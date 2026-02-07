@@ -23,31 +23,29 @@ Vue.component('task', {
 
 Vue.component('column', {
     props: {
-        cards: Array
+        cards: Array,
+        columns: Array
     },
     template: `
     <div class="column__container" >
         <div v-for="column in columns" class="column__item">
-            {{ column.title }}
-            <div v-for="card in cards" class="card__item">
-                <div v-if="column.id == card.table">
-                    {{ card.title }}
-                    <task :tasks="card.tasks" ></task>
-                </div>
+            <h3>{{ column.title }}</h3>
+            <div class="card__item" v-for="card in cardsInColumns(column.id)">
+                {{ card.title }}
+                <task :tasks="card.tasks" ></task>
             </div>
         </div>
     </div>   
  `,
     data() {
         return {
-            columns: [
-                {title: 'Первый'},
-                {title: 'Второй'},
-                {title: 'Третий'},
-            ]
         }
     },
-    methods: {},
+    methods: {
+        cardsInColumns(columnId) {
+            return this.cards.filter(card => card.table === columnId);
+        }
+    },
     computed: {},
     mounted() {}
 })
@@ -55,6 +53,11 @@ Vue.component('column', {
 let app = new Vue({
     el: '#app',
     data: {
+        columns: [
+            {id: '0', title: 'Первый'},
+            {id: '1', title: 'Второй'},
+            {id: '2', title: 'Третий'},
+        ],
         cards: [
             {title: 'Сейчас', table: '1',
                 tasks: [
