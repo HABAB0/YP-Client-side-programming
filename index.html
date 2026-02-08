@@ -12,7 +12,11 @@
 </head>
 <body>
 <div id="app">
-    <column :cards="cards" :columns="columns"></column>
+    <column
+            :cards="cards"
+            :columns="columns"
+            @card-added="addCard"
+    ></column>
 </div>
 </body>
 </html>
