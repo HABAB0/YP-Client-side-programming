@@ -1,7 +1,7 @@
 Vue.component('task', {
     props: {
         tasks: Array,
-        cardIndex: Number
+        cardId: Number
     },
     template: `
     <div class="task-container">
@@ -40,7 +40,7 @@ Vue.component('task', {
 
             this.$emit('task-add', {
                 task: newTask,
-                cardIndex: this.cardIndex
+                cardId: this.cardId
             });
 
             this.newTaskName = '';
@@ -52,31 +52,28 @@ Vue.component('task', {
 
 Vue.component('column', {
     props: {
-        cards: Array,
-        columns: Array
+        column: Object
     },
     template: `
-    <div class="column__container" >
-        <div v-for="column in columns" :key="column.id" class="column__item">
-            <h3>{{ column.title }}</h3>
-            
-            <div v-if="column.id === '0'">
-                <input 
-                    type="text" 
-                    v-model="newCardTitle" 
-                    placeholder="Введите название карточки"
-                >
-                <button @click="addCard">Добавить карточку</button>
-            </div>
-            
-            <div class="card__item" v-for="(card, cardIndex) in cardsInColumns(column.id)" :key="cardIndex">
-                {{ card.title }}
-                <task 
-                    :tasks="card.tasks" 
-                    :cardIndex="getCardIndex(card)" 
-                    @task-add="addTask"
-                ></task>
-            </div>
+    <div class="column__item">
+        <h3>{{ column.title }}</h3>
+        
+        <div >
+            <input 
+                type="text" 
+                v-model="newCardTitle" 
+                placeholder="Введите название карточки"
+            >
+            <button @click="addCard">Добавить карточку</button>
+        </div>
+        
+        <div class="card__item" v-for="(card, index) in column.cards" :key="index">
+            {{ card.title }}
+            <task 
+                :tasks="card.tasks" 
+                :cardId="card.id" 
+                @task-add="addTask"
+            ></task>
         </div>
     </div>   
  `,
@@ -86,61 +83,120 @@ Vue.component('column', {
         }
     },
     methods: {
-        cardsInColumns(columnId) {
-            return this.cards.filter(card => card.table === columnId);
-        },
-        getCardIndex(card) {
-            return this.cards.findIndex(index => index === card);
-        },
         addCard() {
             if (this.newCardTitle.trim() === '') {
                 return;
             }
+
             const newCard = {
+                // id надо както сделать
                 title: this.newCardTitle,
-                table: '0',
                 tasks: []
             };
 
-            this.$emit('card-add', newCard);
+            this.$emit('card-add', {
+                card: newCard,
+                columnId: this.column.id
+            });
+
             this.newCardTitle = '';
         },
-        addTask({task, cardIndex}) {
-            this.$emit('task-add', {task, cardIndex});
+        addTask({task, cardId}) {
+            this.$emit('task-add', {
+                task: task,
+                cardId: cardId,
+                columnId: this.column.id
+            });
         }
     },
-    computed: {},
     mounted() {}
 })
 
 let app = new Vue({
     el: '#app',
-    data: {
-        columns: [
-            {id: '0', title: 'Первый'},
-            {id: '1', title: 'Второй'},
-            {id: '2', title: 'Третий'},
-        ],
-        cards: [
-            { title: 'Сейчас', table: '1',
-                tasks: [
-                    {name: '1', checked: false},
-                    {name: '2', checked: false}
-                ]},
-            { title: 'Завтра' , table: '0',
-                tasks: [
-                    {name: 'это', checked: false},
-                ]},
-        ]
-    },
-    methods: {
-        addCard(newCard) {
-            this.cards.push(newCard);
+    data:
+{
+    columns: [
+        {
+            id: '0',
+            title: 'Первый',
+            cards: [
+                {
+                    id: 1,
+                    title: 'Сейчас',
+                    tasks: [
+                        {name: 'Задача 1', checked: false},
+                        {name: 'Задача 2', checked: false}
+                    ]
+                },
+                {
+                    id: 2,
+                    title: 'Завтра',
+                    tasks: [
+                        {name: 'это', checked: false},
+                    ]
+                },
+            ]
         },
-        addTask({task, cardIndex}) {
-            if (this.cards[cardIndex]) {
-                this.cards[cardIndex].tasks.push(task);
+        {
+            id: '1',
+            title: 'Второй',
+            cards: [
+                {
+                    id: 3,
+                    title: 'РВРП',
+                    tasks: [
+                        {name: '1', checked: false},
+                        {name: '2', checked: false}
+                    ]
+                },
+                {
+                    id: 4,
+                    title: 'Заввапратра',
+                    tasks: [
+                        {name: 'это', checked: false},
+                    ]
+                },
+            ]
+        },
+        {
+            id: '2',
+            title: 'Третий',
+            cards: [
+                {
+                    id: 5,
+                    title: 'Сейапрвапчас',
+                    tasks: [
+                        {name: '1', checked: false},
+                        {name: '2', checked: false}
+                    ]
+                },
+                {
+                    id: 6,
+                    title: 'Заввпратра',
+                    tasks: [
+                        {name: 'это', checked: false},
+                    ]
+                },
+            ]
+        },
+    ]
+},
+methods: {
+    addCard({card, columnId}) {
+        const column = this.columns.find(column => column.id === columnId);
+        if (column) {
+            column.cards.push(card);
+        }
+    },
+    addTask({task, cardId, columnId}) {
+        const column = this.columns.find(column => column.id === columnId);
+        if (column) {
+            const card = column.cards.find(card => card.id === cardId);
+            if (card) {
+                card.tasks.push(task);
             }
         }
     }
+}
 })
