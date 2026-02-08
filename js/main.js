@@ -1,22 +1,51 @@
 Vue.component('task', {
     props: {
         tasks: Array,
+        cardIndex: Number
     },
     template: `
-    <div>
-        <div v-for="task in tasks">
+    <div class="task-container">
+        <div v-for="(task, index) in tasks" :key="index" class="task-item">
             {{ task.name }}
             <label>
                 <input type="checkbox" v-model="task.checked">
             </label>
         </div>
+        
+        <div >
+            <input 
+                type="text" 
+                v-model="newTaskName" 
+                placeholder="Введите задачу"
+            >
+            <button @click="addTask">Добавить задачу</button>
+        </div>
     </div>   
  `,
     data() {
         return {
+            newTaskName: ''
         }
     },
-    methods: {},
+    methods: {
+        addTask() {
+            if (this.newTaskName.trim() === '') {
+                return;
+            }
+
+            const newTask = {
+                name: this.newTaskName,
+                checked: false
+            };
+
+            this.$emit('task-add', {
+                task: newTask,
+                cardIndex: this.cardIndex
+            });
+
+            this.newTaskName = '';
+        }
+    },
     computed: {},
     mounted() {}
 })
@@ -28,23 +57,25 @@ Vue.component('column', {
     },
     template: `
     <div class="column__container" >
-        <div v-for="column in columns" class="column__item">
+        <div v-for="column in columns" :key="column.id" class="column__item">
             <h3>{{ column.title }}</h3>
             
-            <!-- Форма добавления карточки только для первой колонки -->
-            <div v-if="column.id === '0'" class="add-card-form">
+            <div v-if="column.id === '0'">
                 <input 
                     type="text" 
                     v-model="newCardTitle" 
                     placeholder="Введите название карточки"
-                    @keyup.enter="addCard"
                 >
                 <button @click="addCard">Добавить карточку</button>
             </div>
             
-            <div class="card__item" v-for="card in cardsInColumns(column.id)">
+            <div class="card__item" v-for="(card, cardIndex) in cardsInColumns(column.id)" :key="cardIndex">
                 {{ card.title }}
-                <task :tasks="card.tasks" ></task>
+                <task 
+                    :tasks="card.tasks" 
+                    :cardIndex="getCardIndex(card)" 
+                    @task-add="addTask"
+                ></task>
             </div>
         </div>
     </div>   
@@ -58,8 +89,11 @@ Vue.component('column', {
         cardsInColumns(columnId) {
             return this.cards.filter(card => card.table === columnId);
         },
+        getCardIndex(card) {
+            return this.cards.findIndex(index => index === card);
+        },
         addCard() {
-            if (this.newCardTitle === '') {
+            if (this.newCardTitle.trim() === '') {
                 return;
             }
             const newCard = {
@@ -68,9 +102,11 @@ Vue.component('column', {
                 tasks: []
             };
 
-            this.$emit('card-added', newCard);
-
+            this.$emit('card-add', newCard);
             this.newCardTitle = '';
+        },
+        addTask({task, cardIndex}) {
+            this.$emit('task-add', {task, cardIndex});
         }
     },
     computed: {},
@@ -100,6 +136,11 @@ let app = new Vue({
     methods: {
         addCard(newCard) {
             this.cards.push(newCard);
+        },
+        addTask({task, cardIndex}) {
+            if (this.cards[cardIndex]) {
+                this.cards[cardIndex].tasks.push(task);
+            }
         }
     }
 })
