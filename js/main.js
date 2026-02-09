@@ -1,3 +1,5 @@
+const eventBus = new Vue();
+
 Vue.component('task', {
     props: {
         tasks: Array,
@@ -10,7 +12,7 @@ Vue.component('task', {
         <div v-for="(task, index) in tasks" :key="index" class="task-item">
             {{ task.name }}
             <label>
-                <input type="checkbox" v-model="task.checked">
+                <input type="checkbox" v-model="task.checked" @change="onTaskCheck(task)">
             </label>
         </div>
         
@@ -32,6 +34,14 @@ Vue.component('task', {
         }
     },
     methods: {
+        onTaskCheck(task) {
+            eventBus.$emit('task-checked', {
+                task: task,
+                cardId: this.cardId,
+                columnId: this.columnId
+            });
+        },
+
         addTask() {
             if (this.newTaskName === '') {
                 return;
@@ -50,7 +60,7 @@ Vue.component('task', {
                 checked: false
             };
 
-            this.$emit('task-add', {
+            eventBus.$emit('task-add', {
                 task: newTask,
                 cardId: this.cardId,
                 columnId: this.columnId
@@ -99,7 +109,6 @@ Vue.component('column', {
                 :cardId="card.id"
                 :columnId="column.id"
                 :columns="columns" 
-                @task-add="addTask"
             ></task>
         </div>
     </div> 
@@ -113,6 +122,7 @@ Vue.component('column', {
         }
     },
     methods: {
+
         addCard(columnId) {
             if (this.newCardTitle === '') {
                 this.taskError = 'Введите заголовок карточки';
@@ -141,7 +151,7 @@ Vue.component('column', {
                 tasks: tasks
             };
 
-            this.$emit('card-add', {
+            eventBus.$emit('card-add', {
                 card: newCard,
                 columnId: columnId
             });
@@ -150,13 +160,6 @@ Vue.component('column', {
             this.newCardTasks = ['', '', ''];
             this.taskError = '';
         },
-        addTask({task, cardId, columnId}) {
-            this.$emit('task-add', {
-                task: task,
-                cardId: cardId,
-                columnId: columnId
-            });
-        }
     },
     mounted() {
     }
@@ -241,10 +244,51 @@ methods: {
         const column = this.columns.find(column => column.id === columnId);
         column.cards.push(card);
     },
+
     addTask({task, cardId, columnId}) {
         const column = this.columns.find(column => column.id === columnId);
         const card = column.cards.find(card => card.id === cardId);
         card.tasks.push(task);
+    },
+
+    onTaskChecked({task, cardId, columnId}) {
+        this.checkCardProgress(cardId, columnId);
+    },
+
+    checkCardProgress(cardId, currentColumnId) {
+        let columnId = currentColumnId;
+
+        while (columnId < 2) {
+            const column = this.columns.find(column => column.id === columnId);
+            const card = column.cards.find(card => card.id === cardId);
+
+            const progress = (card.tasks.filter(t => t.checked).length / card.tasks.length) * 100;
+
+            let nextColumnId = columnId;
+
+            if (progress === 100) {
+                nextColumnId = 2;
+            } else if (columnId === 0 && progress > 50) {
+                nextColumnId = 1;
+            } else if (columnId === 1 && progress <= 50){
+                nextColumnId = 0;
+            }
+
+            if (nextColumnId === columnId) break;
+
+            const cardIndex = column.cards.findIndex(card => card.id === cardId);
+            column.cards.splice(cardIndex, 1);
+
+            const nextColumn = this.columns.find(column => column.id === nextColumnId);
+            nextColumn.cards.push(card);
+
+            columnId = nextColumnId;
+        }
     }
-}
+},
+    mounted() {
+        eventBus.$on('card-add', this.addCard);
+        eventBus.$on('task-add', this.addTask);
+        eventBus.$on('task-checked', this.onTaskChecked);
+    },
 })
