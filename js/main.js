@@ -12,7 +12,7 @@ Vue.component('task', {
         <div v-for="(task, index) in tasks" :key="index" class="task-item">
             {{ task.name }}
             <label>
-                <input type="checkbox" v-model="task.checked" @change="onTaskCheck(task)" :disabled="columnId === 2"">
+                <input type="checkbox" v-model="task.checked" @change="onTaskCheck(task)" :disabled="columnId === 2">
             </label>
         </div>
         
@@ -82,6 +82,7 @@ Vue.component('column', {
 <div class="column__container">
     <div v-for="column in columns" :key="column.id" class="column__item">
         <h3>{{ column.description }}</h3>
+        <div v-show="blockColumn && column.id === 0" class="blocked-column">Столбец заблокирован для редактирования</div>
          <span v-show="column.maxCards" class="card-count">({{ column.cards.length }} / {{ column.maxCards }})</span>
          <span v-show="column.maxCards === null" class="card-count">({{ column.cards.length }})</span>
          <div v-if="column.id === 0">
@@ -121,7 +122,8 @@ Vue.component('column', {
         return {
             newCardTitle: '',
             newCardTasks: ['', '', ''],
-            taskError: ''
+            taskError: '',
+            blockColumn: false,
         }
     },
     methods: {
@@ -166,6 +168,9 @@ Vue.component('column', {
         },
     },
     mounted() {
+        eventBus.$on('block-column', blockColumn => {
+            this.blockColumn = blockColumn;
+        })
     }
 })
 
@@ -178,25 +183,7 @@ let app = new Vue({
                     id: 0,
                     description: 'Первый',
                     maxCards: 3,
-                    cards: [
-                        {
-                            id: 1,
-                            title: 'Сейчас',
-                            endTime: null,
-                            tasks: [
-                                {name: 'Задача 1', checked: false},
-                                {name: 'Задача 2', checked: false}
-                            ]
-                        },
-                        {
-                            id: 2,
-                            title: 'Завтра',
-                            endTime: null,
-                            tasks: [
-                                {name: 'это', checked: false},
-                            ]
-                        },
-                    ]
+                    cards: []
                 },
                 {
                     id: 1,
@@ -248,7 +235,18 @@ methods: {
                 nextColumnId = 0;
             }
 
+            const nextColumn = this.columns.find(column => column.id === nextColumnId);
+
             if (nextColumnId === columnId) break;
+
+            if (nextColumn.maxCards && nextColumn.maxCards <= nextColumn.cards.length) {
+                if (nextColumnId === 1) {
+                    this.columnBlock()
+                    break
+                }else {
+                    break
+                }
+            }
 
             if (nextColumnId === 2){
                 card.endTime = new Date().toLocaleString();
@@ -257,12 +255,34 @@ methods: {
             const cardIndex = column.cards.findIndex(card => card.id === cardId);
             column.cards.splice(cardIndex, 1);
 
-            const nextColumn = this.columns.find(column => column.id === nextColumnId);
             nextColumn.cards.push(card);
 
             columnId = nextColumnId;
+
+            this.columnBlock();
+        }
+    },
+
+    columnBlock() {
+        const firstColumn = this.columns.find(column => column.id === 0);
+        const secondColumn = this.columns.find(column => column.id === 1);
+
+        const fullSecondColumn = secondColumn.cards.length >= secondColumn.maxCards
+
+        if (!fullSecondColumn) {
+            eventBus.$emit('block-column', false);
+            return;
+        }
+
+        if (firstColumn.cards.find(card => (card.tasks.filter(t => t.checked).length / card.tasks.length) * 100 > 50
+        )) {
+            eventBus.$emit('block-column', true);
+        }else {
+            eventBus.$emit('block-column', false);
         }
     }
+
+
 },
     mounted() {
         eventBus.$on('card-add', this.addCard);
