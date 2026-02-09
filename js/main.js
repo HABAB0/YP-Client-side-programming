@@ -1,7 +1,8 @@
 Vue.component('task', {
     props: {
         tasks: Array,
-        cardId: Number
+        cardId: Number,
+        columnId: Number,
     },
     template: `
     <div class="task-container">
@@ -40,7 +41,8 @@ Vue.component('task', {
 
             this.$emit('task-add', {
                 task: newTask,
-                cardId: this.cardId
+                cardId: this.cardId,
+                columnId: this.columnId
             });
 
             this.newTaskName = '';
@@ -52,7 +54,7 @@ Vue.component('task', {
 
 Vue.component('column', {
     props: {
-        columns: Object
+        columns: Array,
     },
     template: `
 <div class="column__container">
@@ -64,14 +66,15 @@ Vue.component('column', {
                 v-model="newCardTitle" 
                 placeholder="Введите название карточки"
             >
-            <button @click="addCard">Добавить карточку</button>
+            <button @click="addCard(column.id)">Добавить карточку</button>
         </div>
         
-        <div class="card__item" v-for="card in column.cards" :key="column.cards.id">
+        <div class="card__item" v-for="card in column.cards" :key="card.id">
             {{ card.title }}
             <task 
                 :tasks="card.tasks" 
-                :cardId="card.id" 
+                :cardId="card.id"
+                :columnId="column.id"
                 @task-add="addTask"
             ></task>
         </div>
@@ -84,7 +87,7 @@ Vue.component('column', {
         }
     },
     methods: {
-        addCard() {
+        addCard(columnId) {
             if (this.newCardTitle === '') {
                 return;
             }
@@ -97,7 +100,7 @@ Vue.component('column', {
 
             this.$emit('card-add', {
                 card: newCard,
-                columnId: this.column.id
+                columnId: columnId
             });
 
             this.newCardTitle = '';
@@ -106,7 +109,7 @@ Vue.component('column', {
             this.$emit('task-add', {
                 task: task,
                 cardId: cardId,
-                columnId: this.column.id
+                columnId: columnId
             });
         }
     },
@@ -122,6 +125,7 @@ let app = new Vue({
                 {
                     id: 0,
                     description: 'Первый',
+                    maxCards: 3,
                     cards: [
                         {
                             id: 1,
@@ -143,6 +147,7 @@ let app = new Vue({
                 {
                     id: 1,
                     description: 'Второй',
+                    maxCards: 5,
                     cards: [
                         {
                             id: 3,
@@ -164,6 +169,7 @@ let app = new Vue({
                 {
                     id: 2,
                     description: 'Третий',
+                    maxCards: null,
                     cards: [
                         {
                             id: 5,
@@ -188,7 +194,11 @@ let app = new Vue({
 methods: {
     addCard({card, columnId}) {
         const column = this.columns.find(column => column.id === columnId);
+        if (column.maxCards <= column.cards.length) {
+            return(alert("Достигнуто максиальное количество карточек"));
+        }else {
             column.cards.push(card);
+        }
     },
     addTask({task, cardId, columnId}) {
         const column = this.columns.find(column => column.id === columnId);
