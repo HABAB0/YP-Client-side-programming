@@ -29,7 +29,7 @@ Vue.component('task', {
     },
     methods: {
         addTask() {
-            if (this.newTaskName.trim() === '') {
+            if (this.newTaskName === '') {
                 return;
             }
 
@@ -52,13 +52,13 @@ Vue.component('task', {
 
 Vue.component('column', {
     props: {
-        column: Object
+        columns: Object
     },
     template: `
-    <div class="column__item">
-        <h3>{{ column.title }}</h3>
-        
-        <div >
+<div class="column__container">
+    <div v-for="column in columns" :key="column.id" class="column__item">
+        <h3>{{ column.description }}</h3>
+         <div v-if="column.id === 0">
             <input 
                 type="text" 
                 v-model="newCardTitle" 
@@ -67,7 +67,7 @@ Vue.component('column', {
             <button @click="addCard">Добавить карточку</button>
         </div>
         
-        <div class="card__item" v-for="(card, index) in column.cards" :key="index">
+        <div class="card__item" v-for="card in column.cards" :key="column.cards.id">
             {{ card.title }}
             <task 
                 :tasks="card.tasks" 
@@ -75,21 +75,22 @@ Vue.component('column', {
                 @task-add="addTask"
             ></task>
         </div>
-    </div>   
+    </div> 
+</div>  
  `,
     data() {
         return {
-            newCardTitle: ''
+            newCardTitle: '',
         }
     },
     methods: {
         addCard() {
-            if (this.newCardTitle.trim() === '') {
+            if (this.newCardTitle === '') {
                 return;
             }
 
             const newCard = {
-                // id надо както сделать
+                id: new Date().toISOString() + Math.random() * 1000,
                 title: this.newCardTitle,
                 tasks: []
             };
@@ -101,7 +102,7 @@ Vue.component('column', {
 
             this.newCardTitle = '';
         },
-        addTask({task, cardId}) {
+        addTask({task, cardId, columnId}) {
             this.$emit('task-add', {
                 task: task,
                 cardId: cardId,
@@ -109,94 +110,90 @@ Vue.component('column', {
             });
         }
     },
-    mounted() {}
+    mounted() {
+    }
 })
 
 let app = new Vue({
     el: '#app',
-    data:
-{
-    columns: [
-        {
-            id: '0',
-            title: 'Первый',
-            cards: [
+    data(){
+        return {
+            columns: [
+                {
+                    id: 0,
+                    description: 'Первый',
+                    cards: [
+                        {
+                            id: 1,
+                            title: 'Сейчас',
+                            tasks: [
+                                {name: 'Задача 1', checked: false},
+                                {name: 'Задача 2', checked: false}
+                            ]
+                        },
+                        {
+                            id: 2,
+                            title: 'Завтра',
+                            tasks: [
+                                {name: 'это', checked: false},
+                            ]
+                        },
+                    ]
+                },
                 {
                     id: 1,
-                    title: 'Сейчас',
-                    tasks: [
-                        {name: 'Задача 1', checked: false},
-                        {name: 'Задача 2', checked: false}
+                    description: 'Второй',
+                    cards: [
+                        {
+                            id: 3,
+                            title: 'РВРП',
+                            tasks: [
+                                {name: '1', checked: false},
+                                {name: '2', checked: false}
+                            ]
+                        },
+                        {
+                            id: 4,
+                            title: 'Заввапратра',
+                            tasks: [
+                                {name: 'это', checked: false},
+                            ]
+                        },
                     ]
                 },
                 {
                     id: 2,
-                    title: 'Завтра',
-                    tasks: [
-                        {name: 'это', checked: false},
+                    description: 'Третий',
+                    cards: [
+                        {
+                            id: 5,
+                            title: 'Сейапрвапчас',
+                            tasks: [
+                                {name: '1', checked: false},
+                                {name: '2', checked: false}
+                            ]
+                        },
+                        {
+                            id: 6,
+                            title: 'Заввпратра',
+                            tasks: [
+                                {name: 'это', checked: false},
+                            ]
+                        },
                     ]
                 },
             ]
-        },
-        {
-            id: '1',
-            title: 'Второй',
-            cards: [
-                {
-                    id: 3,
-                    title: 'РВРП',
-                    tasks: [
-                        {name: '1', checked: false},
-                        {name: '2', checked: false}
-                    ]
-                },
-                {
-                    id: 4,
-                    title: 'Заввапратра',
-                    tasks: [
-                        {name: 'это', checked: false},
-                    ]
-                },
-            ]
-        },
-        {
-            id: '2',
-            title: 'Третий',
-            cards: [
-                {
-                    id: 5,
-                    title: 'Сейапрвапчас',
-                    tasks: [
-                        {name: '1', checked: false},
-                        {name: '2', checked: false}
-                    ]
-                },
-                {
-                    id: 6,
-                    title: 'Заввпратра',
-                    tasks: [
-                        {name: 'это', checked: false},
-                    ]
-                },
-            ]
-        },
-    ]
+        }
 },
 methods: {
     addCard({card, columnId}) {
         const column = this.columns.find(column => column.id === columnId);
-        if (column) {
             column.cards.push(card);
-        }
     },
     addTask({task, cardId, columnId}) {
         const column = this.columns.find(column => column.id === columnId);
-        if (column) {
             const card = column.cards.find(card => card.id === cardId);
-            if (card) {
                 card.tasks.push(task);
-            }
-        }
     }
 }
 })
