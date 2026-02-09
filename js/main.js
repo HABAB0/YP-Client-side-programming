@@ -60,13 +60,24 @@ Vue.component('column', {
 <div class="column__container">
     <div v-for="column in columns" :key="column.id" class="column__item">
         <h3>{{ column.description }}</h3>
+         <span v-show="column.maxCards" class="card-count">({{ column.cards.length }} / {{ column.maxCards }})</span>
+         <span v-show="column.maxCards === null" class="card-count">({{ column.cards.length }})</span>
          <div v-if="column.id === 0">
             <input 
                 type="text" 
                 v-model="newCardTitle" 
                 placeholder="Введите название карточки"
             >
+            
+            <div v-for="(task, index) in newCardTasks" :key="index" class="task-input">
+                    <input 
+                        type="text" 
+                        v-model="newCardTasks[index]" 
+                        :placeholder="'Задача ' + (index + 1)"
+                    >
+                </div>
             <button @click="addCard(column.id)">Добавить карточку</button>
+            <span v-if="taskError" class="error-message">{{ taskError }}</span>
         </div>
         
         <div class="card__item" v-for="card in column.cards" :key="card.id">
@@ -84,18 +95,31 @@ Vue.component('column', {
     data() {
         return {
             newCardTitle: '',
+            newCardTasks: ['', '', ''],
+            taskError: ''
         }
     },
     methods: {
         addCard(columnId) {
             if (this.newCardTitle === '') {
+                this.taskError = 'Введите заголовок карточки';
                 return;
             }
+
+            if (this.newCardTasks.includes('')) {
+                this.taskError = 'Введите все задачи карточки';
+                return;
+            }
+
+            const tasks = this.newCardTasks.map(task => ({
+                    name: task,
+                    checked: false
+                }));
 
             const newCard = {
                 id: new Date().toISOString() + Math.random() * 1000,
                 title: this.newCardTitle,
-                tasks: []
+                tasks: tasks
             };
 
             this.$emit('card-add', {
@@ -104,6 +128,8 @@ Vue.component('column', {
             });
 
             this.newCardTitle = '';
+            this.newCardTasks = ['', '', ''];
+            this.taskError = '';
         },
         addTask({task, cardId, columnId}) {
             this.$emit('task-add', {
