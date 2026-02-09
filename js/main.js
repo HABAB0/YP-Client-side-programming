@@ -3,6 +3,7 @@ Vue.component('task', {
         tasks: Array,
         cardId: Number,
         columnId: Number,
+        columns: Array,
     },
     template: `
     <div class="task-container">
@@ -20,17 +21,27 @@ Vue.component('task', {
                 placeholder="Введите задачу"
             >
             <button @click="addTask">Добавить задачу</button>
+            <span v-if="taskError" class="error-message">{{ taskError }}</span>
         </div>
     </div>   
  `,
     data() {
         return {
-            newTaskName: ''
+            newTaskName: '',
+            taskError: ''
         }
     },
     methods: {
         addTask() {
             if (this.newTaskName === '') {
+                return;
+            }
+
+            const column = this.columns.find(column => column.id === this.columnId);
+            const card = column.cards.find(card => card.id === this.cardId);
+
+            if (card.tasks.length >= 5) {
+                this.taskError = 'Максимальное количество задач';
                 return;
             }
 
@@ -46,6 +57,7 @@ Vue.component('task', {
             });
 
             this.newTaskName = '';
+            this.taskError =  '';
         }
     },
     computed: {},
@@ -86,6 +98,7 @@ Vue.component('column', {
                 :tasks="card.tasks" 
                 :cardId="card.id"
                 :columnId="column.id"
+                :columns="columns" 
                 @task-add="addTask"
             ></task>
         </div>
@@ -108,6 +121,12 @@ Vue.component('column', {
 
             if (this.newCardTasks.includes('')) {
                 this.taskError = 'Введите все задачи карточки';
+                return;
+            }
+
+            const column = this.columns.find(column => column.id === columnId);
+            if (column.maxCards <= column.cards.length) {
+                this.taskError = 'Достигнуто максимальное количество карточек';
                 return;
             }
 
@@ -220,16 +239,12 @@ let app = new Vue({
 methods: {
     addCard({card, columnId}) {
         const column = this.columns.find(column => column.id === columnId);
-        if (column.maxCards <= column.cards.length) {
-            return(alert("Достигнуто максиальное количество карточек"));
-        }else {
-            column.cards.push(card);
-        }
+        column.cards.push(card);
     },
     addTask({task, cardId, columnId}) {
         const column = this.columns.find(column => column.id === columnId);
-            const card = column.cards.find(card => card.id === cardId);
-                card.tasks.push(task);
+        const card = column.cards.find(card => card.id === cardId);
+        card.tasks.push(task);
     }
 }
 })
