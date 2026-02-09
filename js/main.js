@@ -95,7 +95,7 @@ Vue.component('column', {
                     <input 
                         type="text" 
                         v-model="newCardTasks[index]" 
-                        :placeholder="'Задача ' + (index + 1)"
+                        placeholder="Задача"
                     >
                 </div>
             <button @click="addCard(column.id)">Добавить карточку</button>
@@ -104,6 +104,9 @@ Vue.component('column', {
         
         <div class="card__item" v-for="card in column.cards" :key="card.id">
             {{ card.title }}
+            <div v-show="column.id === 2 && card.endTime != null">
+                {{ card.endTime }}
+            </div>
             <task 
                 :tasks="card.tasks" 
                 :cardId="card.id"
@@ -148,6 +151,7 @@ Vue.component('column', {
             const newCard = {
                 id: new Date().toISOString() + Math.random() * 1000,
                 title: this.newCardTitle,
+                endTime: null,
                 tasks: tasks
             };
 
@@ -178,6 +182,7 @@ let app = new Vue({
                         {
                             id: 1,
                             title: 'Сейчас',
+                            endTime: null,
                             tasks: [
                                 {name: 'Задача 1', checked: false},
                                 {name: 'Задача 2', checked: false}
@@ -186,6 +191,7 @@ let app = new Vue({
                         {
                             id: 2,
                             title: 'Завтра',
+                            endTime: null,
                             tasks: [
                                 {name: 'это', checked: false},
                             ]
@@ -196,45 +202,13 @@ let app = new Vue({
                     id: 1,
                     description: 'Второй',
                     maxCards: 5,
-                    cards: [
-                        {
-                            id: 3,
-                            title: 'РВРП',
-                            tasks: [
-                                {name: '1', checked: false},
-                                {name: '2', checked: false}
-                            ]
-                        },
-                        {
-                            id: 4,
-                            title: 'Заввапратра',
-                            tasks: [
-                                {name: 'это', checked: false},
-                            ]
-                        },
-                    ]
+                    cards: []
                 },
                 {
                     id: 2,
                     description: 'Третий',
                     maxCards: null,
-                    cards: [
-                        {
-                            id: 5,
-                            title: 'Сейапрвапчас',
-                            tasks: [
-                                {name: '1', checked: false},
-                                {name: '2', checked: false}
-                            ]
-                        },
-                        {
-                            id: 6,
-                            title: 'Заввпратра',
-                            tasks: [
-                                {name: 'это', checked: false},
-                            ]
-                        },
-                    ]
+                    cards: []
                 },
             ]
         }
@@ -251,7 +225,7 @@ methods: {
         card.tasks.push(task);
     },
 
-    onTaskChecked({task, cardId, columnId}) {
+    onTaskChecked({ cardId, columnId}) {
         this.checkCardProgress(cardId, columnId);
     },
 
@@ -275,6 +249,10 @@ methods: {
             }
 
             if (nextColumnId === columnId) break;
+
+            if (nextColumnId === 2){
+                card.endTime = new Date().toLocaleString();
+            }
 
             const cardIndex = column.cards.findIndex(card => card.id === cardId);
             column.cards.splice(cardIndex, 1);
