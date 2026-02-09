@@ -12,11 +12,11 @@ Vue.component('task', {
         <div v-for="(task, index) in tasks" :key="index" class="task-item">
             {{ task.name }}
             <label>
-                <input type="checkbox" v-model="task.checked" @change="onTaskCheck(task)">
+                <input type="checkbox" v-model="task.checked" @change="onTaskCheck(task)" :disabled="columnId === 2"">
             </label>
         </div>
         
-        <div >
+        <div v-show="this.columnId != 2">
             <input 
                 type="text" 
                 v-model="newTaskName" 
