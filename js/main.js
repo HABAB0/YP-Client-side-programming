@@ -204,34 +204,37 @@ methods: {
     addCard({card, columnId}) {
         const column = this.columns.find(column => column.id === columnId);
         column.cards.push(card);
+        eventBus.$emit('save');
     },
 
     addTask({task, cardId, columnId}) {
         const column = this.columns.find(column => column.id === columnId);
         const card = column.cards.find(card => card.id === cardId);
         card.tasks.push(task);
+        eventBus.$emit('save');
     },
 
     onTaskChecked({ cardId, columnId}) {
-        this.checkCardProgress(cardId, columnId);
+        this.checkCardProcent(cardId, columnId);
+        eventBus.$emit('save');
     },
 
-    checkCardProgress(cardId, currentColumnId) {
+    checkCardProcent(cardId, currentColumnId) {
         let columnId = currentColumnId;
 
         while (columnId < 2) {
             const column = this.columns.find(column => column.id === columnId);
             const card = column.cards.find(card => card.id === cardId);
 
-            const progress = (card.tasks.filter(t => t.checked).length / card.tasks.length) * 100;
+            const procent = (card.tasks.filter(t => t.checked).length / card.tasks.length) * 100;
 
             let nextColumnId = columnId;
 
-            if (progress === 100) {
+            if (procent === 100) {
                 nextColumnId = 2;
-            } else if (columnId === 0 && progress > 50) {
+            } else if (columnId === 0 && procent > 50) {
                 nextColumnId = 1;
-            } else if (columnId === 1 && progress <= 50){
+            } else if (columnId === 1 && procent <= 50){
                 nextColumnId = 0;
             }
 
@@ -260,6 +263,7 @@ methods: {
             columnId = nextColumnId;
 
             this.columnBlock();
+            eventBus.$emit('save');
         }
     },
 
@@ -280,13 +284,23 @@ methods: {
         }else {
             eventBus.$emit('block-column', false);
         }
+    },
+
+    saveData() {
+        localStorage.setItem('columns', JSON.stringify(this.columns));
     }
 
 
 },
     mounted() {
+        const localStore = JSON.parse(localStorage.getItem('columns'));
+        if (localStore) {
+            this.columns = localStore;
+        }
+
         eventBus.$on('card-add', this.addCard);
         eventBus.$on('task-add', this.addTask);
         eventBus.$on('task-checked', this.onTaskChecked);
+        eventBus.$on('save', this.saveData);
     },
 })
