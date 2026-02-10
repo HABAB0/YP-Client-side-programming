@@ -12,6 +12,11 @@
 </head>
 <body>
 <div id="app">
+    <column
+            :columns="columns"
+            @card-add="addCard"
+            @task-add="addTask"
+    ></column>
 </div>
 </body>
 </html>
