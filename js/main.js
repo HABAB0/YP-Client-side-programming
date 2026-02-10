@@ -40,9 +40,15 @@ Vue.component('column', {
             {{ card.deadline }}
             {{ card.task }}
             <div v-show="card.whyBack">{{ card.whyBack }}</div>
-            <div v-if="card.inTime">Задача сделана в срок</div>
-            <div v-else>Задача просрочена</div>
+            <div v-show="column.id == 3">
+                <div v-if="card.inTime">Задача сделана в срок</div>
+                <div v-else>Задача просрочена</div>
+            </div>
             <button @click="deleteCard(card.id , column.id)">Х</button>
+            <button @click="handleSwitchShowEdit">Изменить</button>
+            <div v-show="showEdit">
+                asdgfasfasdfafgafhadghghadheohoi34985678340t
+            </div>
             <button v-show="column.id != 3" @click="changeColumn(card.id , column.id)">Вперёд</button>
             <div v-show="column.id == 2">
                 <input 
@@ -67,6 +73,7 @@ Vue.component('column', {
             inTime: '',
             whyBack: '',
             whyBackError: '',
+            showEdit: false,
         }
     },
     methods: {
@@ -135,7 +142,12 @@ Vue.component('column', {
             this.whyBackError = ''
             console.log(cardId)
             eventBus.$emit('change-column-back', {cardId: cardId, columnId: columnId});
-        }
+        },
+
+        handleSwitchShowEdit(){
+            console.log(this.showEdit);
+            this.showEdit = !this.showEdit;
+        },
     },
 })
 
