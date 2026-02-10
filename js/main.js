@@ -45,10 +45,28 @@ Vue.component('column', {
                 <div v-else>Задача просрочена</div>
             </div>
             <button @click="deleteCard(card.id , column.id)">Х</button>
-            <button @click="handleSwitchShowEdit">Изменить</button>
             <div v-show="showEdit">
-                asdgfasfasdfafgafhadghghadheohoi34985678340t
+                <input 
+                    type="text" 
+                    v-model="editCardTitle" 
+                    placeholder="Введите название карточки"
+                >
+                <div class="task-input">
+                        <input 
+                            type="text" 
+                            v-model="editCardTask" 
+                            placeholder="Задача"
+                        >
+                        <input 
+                            type="date" 
+                            v-model="editCardDeadline" 
+                            placeholder="Дедлайн"
+                        >
+                </div>
             </div>
+            <span v-if="editErrors" class="error-message">{{ editErrors }}</span>
+            <button @click="editCard(card.id , column.id)">Изменить</button>
+   
             <button v-show="column.id != 3" @click="changeColumn(card.id , column.id)">Вперёд</button>
             <div v-show="column.id == 2">
                 <input 
@@ -74,6 +92,10 @@ Vue.component('column', {
             whyBack: '',
             whyBackError: '',
             showEdit: false,
+            editCardTitle: '',
+            editCardTask: '',
+            editCardDeadline: '',
+            editErrors: ''
         }
     },
     methods: {
@@ -144,10 +166,34 @@ Vue.component('column', {
             eventBus.$emit('change-column-back', {cardId: cardId, columnId: columnId});
         },
 
-        handleSwitchShowEdit(){
-            console.log(this.showEdit);
+        editCard(cardId, columnId) {
+
+            const column = this.columns.find(column => column.id === columnId);
+            const card = column.cards.find(card => card.id === cardId);
+
+            this.editCardTitle = card.title;
+            this.editCardTask = card.task;
+            this.editCardDeadline = card.deadline;
+
+            if (this.showEdit) {
+                if (this.editCardTitle === '') {
+                    this.editErrors = 'Введите заголовок карточки';
+                    return;
+                }
+
+                if (this.editCardTask === '') {
+                    this.editErrors = 'Введите задачу карточки';
+                    return;
+                }
+
+                if (this.editCardDeadline === '') {
+                    this.editErrors = 'Введите дедлайн карточки';
+                    return;
+                }
+
+            }
             this.showEdit = !this.showEdit;
-        },
+        }
     },
 })
 
