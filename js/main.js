@@ -28,7 +28,6 @@ Vue.component('column', {
                         type="date" 
                         v-model="newCardDeadline" 
                         placeholder="Дедлайн"
-                        required
                     >
                 </div>
             <button @click="addCard(column.id)">Добавить карточку</button>
@@ -40,9 +39,20 @@ Vue.component('column', {
             {{ card.createTime }}
             {{ card.deadline }}
             {{ card.task }}
-            <div v-show="card.inTime">HSgfkdjasdlswghdslfjigho[g</div>
+            <div v-show="card.whyBack">{{ card.whyBack }}</div>
+            <div v-if="card.inTime">Задача сделана в срок</div>
+            <div v-else>Задача просрочена</div>
             <button @click="deleteCard(card.id , column.id)">Х</button>
-            <button v-show="column.id != 3" @click="changeColumn(card.id , column.id)">Переместить</button>
+            <button v-show="column.id != 3" @click="changeColumn(card.id , column.id)">Вперёд</button>
+            <div v-show="column.id == 2">
+                <input 
+                        type="text" 
+                        v-model="whyBack" 
+                        placeholder="Причина Возврата"
+                    >
+                    <span v-if="whyBackError" class="error-message">{{ whyBackError }}</span>
+                <button @click="changeColumnBack(card.id , column.id)">Назад</button>
+            </div>
         </div>
     </div> 
 </div>  
@@ -54,7 +64,9 @@ Vue.component('column', {
             newCardDeadline: '',
             taskError: '',
             createTime: '',
-            inTime: false,
+            inTime: '',
+            whyBack: '',
+            whyBackError: '',
         }
     },
     methods: {
@@ -81,13 +93,16 @@ Vue.component('column', {
                 return;
             }
 
+            const today = new Date()
+
             const newCard = {
                 id: new Date().toISOString() + Math.random() * 1000,
                 title: this.newCardTitle,
-                createTime: new Date().toLocaleDateString(),
+                createTime: `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`,
                 task: this.newCardTask,
                 deadline: this.newCardDeadline,
                 inTime: false,
+                whyBack: this.whyBack,
             };
 
             eventBus.$emit('card-add', {
@@ -106,15 +121,22 @@ Vue.component('column', {
 
         changeColumn(cardId, columnId) {
             eventBus.$emit('change-column', {cardId: cardId, columnId: columnId});
+        },
+
+        changeColumnBack(cardId, columnId) {
+            if (this.whyBack === '') {
+                this.whyBackError = 'Введите причину возврата';
+                return;
+            }
+            const column = this.columns.find(column => column.id === columnId);
+            const card = column.cards.find(card => card.id === cardId);
+            card.whyBack = this.whyBack;
+            this.whyBack = '';
+            this.whyBackError = ''
+            console.log(cardId)
+            eventBus.$emit('change-column-back', {cardId: cardId, columnId: columnId});
         }
     },
-
-
-    mounted() {
-        eventBus.$on('block-column', blockColumn => {
-            this.blockColumn = blockColumn;
-        })
-    }
 })
 
 let app = new Vue({
@@ -166,16 +188,36 @@ let app = new Vue({
             const card = column.cards.find(card => card.id === cardId);
             const nextColumn = this.columns.find(column => column.id === columnId + 1);
             const cardIndex = column.cards.findIndex(card => card.id === cardId);
+            const now = new Date()
 
-            if (nextColumn === 3) {
-                if (card.deadline > card.createTime) {
+            if (nextColumn.id === 3) {
+                const allTimeInWork = new Date(card.deadline).getTime() - new Date(card.createTime).getTime()
+                const timeInWork = new Date(now).getTime() - new Date(card.createTime).getTime()
+                if ( timeInWork < allTimeInWork ) {
                     card.inTime = true;
                 }
             }
+
             column.cards.splice(cardIndex, 1);
 
             nextColumn.cards.push(card);
 
+            eventBus.$emit('save');
+        },
+
+        changeColumnBack({cardId, columnId}) {
+
+            if (columnId !== 2) {
+                return;
+            }
+            const column = this.columns.find(column => column.id === columnId);
+            const card = column.cards.find(card => card.id === cardId);
+            const previousColumn = this.columns.find(column => column.id === columnId - 1);
+            const cardIndex = column.cards.findIndex(card => card.id === cardId);
+
+            column.cards.splice(cardIndex, 1);
+            console.log(previousColumn.id)
+            previousColumn.cards.push(card);
             eventBus.$emit('save');
         },
 
@@ -204,6 +246,6 @@ let app = new Vue({
         eventBus.$on('delete-card', this.deleteCard);
         eventBus.$on('save', this.saveData);
         eventBus.$on('change-column', this.changeColumn);
-
+        eventBus.$on('change-column-back', this.changeColumnBack);
     },
 })
