@@ -9,7 +9,6 @@ Vue.component('column', {
 <div class="column__container">
     <div v-for="column in columns" :key="column.id" class="column__item">
         <h3>{{ column.description }}</h3>
-        <div v-show="blockColumn && column.id === 0" class="blocked-column">Столбец заблокирован для редактирования</div>
          <span v-show="column.maxCards" class="card-count">({{ column.cards.length }} / {{ column.maxCards }})</span>
          <span v-show="column.maxCards === null" class="card-count">({{ column.cards.length }})</span>
          <div v-if="column.id === 0">
@@ -42,6 +41,7 @@ Vue.component('column', {
             {{ card.deadline }}
             {{ card.task }}
             <button @click="deleteCard(card.id , column.id)">Х</button>
+            <button v-show="column.id != 3" @click="changeColumn(card.id , column.id)">Переместить</button>
         </div>
     </div> 
 </div>  
@@ -53,7 +53,6 @@ Vue.component('column', {
             newCardDeadline: '',
             taskError: '',
             createTime: '',
-            blockColumn: false,
         }
     },
     methods: {
@@ -98,8 +97,12 @@ Vue.component('column', {
             this.taskError = '';
         },
 
-        deleteCard(id, columnId) {
-            eventBus.$emit('delete-card', {id: id, columnId: columnId});
+        deleteCard(cardId, columnId) {
+            eventBus.$emit('delete-card', {cardId: cardId, columnId: columnId});
+        },
+
+        changeColumn(cardId, columnId) {
+            eventBus.$emit('change-column', {cardId: cardId, columnId: columnId});
         }
     },
 
@@ -129,13 +132,13 @@ let app = new Vue({
                     cards: []
                 },
                 {
-                    id: 3,
+                    id: 2,
                     description: 'Тестирование',
                     maxCards: 5,
                     cards: []
                 },
                 {
-                    id: 2,
+                    id: 3,
                     description: 'Выполненные задачи',
                     maxCards: null,
                     cards: []
@@ -150,76 +153,24 @@ let app = new Vue({
             eventBus.$emit('save');
         },
 
-        onTaskChecked({ cardId, columnId}) {
-            this.checkCardProcent(cardId, columnId);
-            eventBus.$emit('save');
-        },
+        changeColumn({cardId, columnId}) {
 
-        checkCardProcent(cardId, currentColumnId) {
-            let columnId = currentColumnId;
-
-            while (columnId < 2) {
-                const column = this.columns.find(column => column.id === columnId);
-                const card = column.cards.find(card => card.id === cardId);
-
-                const procent = (card.tasks.filter(t => t.checked).length / card.tasks.length) * 100;
-
-                let nextColumnId = columnId;
-
-                if (procent === 100) {
-                    nextColumnId = 2;
-                } else if (columnId === 0 && procent > 50) {
-                    nextColumnId = 1;
-                } else if (columnId === 1 && procent <= 50){
-                    nextColumnId = 0;
-                }
-
-                const nextColumn = this.columns.find(column => column.id === nextColumnId);
-
-                if (nextColumnId === columnId) break;
-
-                if (nextColumn.maxCards && nextColumn.maxCards <= nextColumn.cards.length) {
-                    if (nextColumnId === 1) {
-                        this.columnBlock()
-                        break
-                    }else {
-                        break
-                    }
-                }
-
-                if (nextColumnId === 2){
-                    card.endTime = new Date().toLocaleString();
-                }
-
-                const cardIndex = column.cards.findIndex(card => card.id === cardId);
-                column.cards.splice(cardIndex, 1);
-
-                nextColumn.cards.push(card);
-
-                columnId = nextColumnId;
-
-                this.columnBlock();
-                eventBus.$emit('save');
-            }
-        },
-
-        columnBlock() {
-            const firstColumn = this.columns.find(column => column.id === 0);
-            const secondColumn = this.columns.find(column => column.id === 1);
-
-            const fullSecondColumn = secondColumn.cards.length >= secondColumn.maxCards
-
-            if (!fullSecondColumn) {
-                eventBus.$emit('block-column', false);
+            if (columnId === 3) {
                 return;
             }
 
-            if (firstColumn.cards.find(card => (card.tasks.filter(t => t.checked).length / card.tasks.length) * 100 > 50
-            )) {
-                eventBus.$emit('block-column', true);
-            }else {
-                eventBus.$emit('block-column', false);
-            }
+            const column = this.columns.find(column => column.id === columnId);
+            const card = column.cards.find(card => card.id === cardId);
+            const nextColumn = this.columns.find(column => column.id === columnId + 1);
+            console.log(column);
+            console.log(card);
+            console.log(nextColumn);
+            const cardIndex = column.cards.findIndex(card => card.id === cardId);
+            column.cards.splice(cardIndex, 1);
+
+            nextColumn.cards.push(card);
+
+            eventBus.$emit('save');
         },
 
         deleteCard({id, columnId}) {
@@ -244,8 +195,9 @@ let app = new Vue({
         }
 
         eventBus.$on('card-add', this.addCard);
-        eventBus.$on('task-checked', this.onTaskChecked);
         eventBus.$on('delete-card', this.deleteCard);
         eventBus.$on('save', this.saveData);
+        eventBus.$on('change-column', this.changeColumn);
+
     },
 })
