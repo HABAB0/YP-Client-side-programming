@@ -1,37 +1,3 @@
-* {
-    margin: 0;
-    padding: 0;
-
-}
-
-.column__container{
-    display: flex;
-    justify-content: space-between;
-    padding: 40px;
-    gap: 20px;
-    height: 100%;
-}
-
-.column__item {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: start;
-    border: 1px solid black;
-    height: 90vh;
-    width: 100vw;
-    gap: 20px;
-}
-
-.card__item {
-    display: flex;
-    flex-direction: column;
-    border: 1px solid black;
-    padding: 20px;
-    width: 80%;
-}
-
 .blocked-column {
     position: absolute;
     top: 0;
@@ -48,3 +14,908 @@
     text-align: center;
     color: red;
 }
+
+body {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 30%, #a1c4fd 60%, #c2e9fb 100%);
+    font-family: 'Comic Sans MS', 'Marker Felt', 'Bradley Hand', cursive, sans-serif;
+    color: #2c3e50;
+    min-height: 100vh;
+    padding: 20px;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Добавляем летающие шарики на фон */
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: -1;
+    background-image:
+            radial-gradient(circle at 10% 20%, rgba(255, 100, 100, 0.15) 0px, transparent 20px),
+            radial-gradient(circle at 30% 40%, rgba(100, 200, 255, 0.15) 0px, transparent 25px),
+            radial-gradient(circle at 50% 70%, rgba(150, 100, 255, 0.15) 0px, transparent 30px),
+            radial-gradient(circle at 80% 30%, rgba(100, 255, 150, 0.15) 0px, transparent 22px),
+            radial-gradient(circle at 90% 80%, rgba(255, 200, 100, 0.15) 0px, transparent 28px);
+    animation: floatBubbles 25s linear infinite;
+}
+
+@keyframes floatBubbles {
+    0% { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 0%, 0% 0%; }
+    100% { background-position: 100% 100%, 75% 120%, 125% 80%, 150% 100%, 80% 120%; }
+}
+
+.column__container {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px;
+    padding: 20px;
+    position: relative;
+    z-index: 10;
+    overflow: scroll;
+}
+
+#app {
+    width: 100%;
+    position: relative;
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 40px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.35);
+    padding: 25px;
+    border: 8px dashed #ffcc00;
+    overflow: hidden;
+}
+
+#app::before {
+    content: "";
+    position: absolute;
+    top: 0%;
+    left: 0%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%);
+    z-index: -1;
+}
+
+/* Заголовки колонок с новой анимацией */
+.column__item h3 {
+    background: linear-gradient(45deg, #ff9a9e, #fad0c4, #a1c4fd, #c2e9fb);
+    border-radius: 30px;
+    padding: 15px 25px;
+    text-align: center;
+    font-size: 32px;
+    font-weight: bold;
+    text-shadow: 3px 3px 0 #ff6b6b, 6px 6px 0 rgba(0,0,0,0.15);
+    margin-bottom: 20px;
+    border: 5px solid #2c3e50;
+    box-shadow: 0 8px 0 #d15a5a;
+    position: relative;
+    letter-spacing: 1px;
+    animation:
+            bounce 2s infinite,
+            rainbowGlow 8s linear infinite;
+    transform-origin: center;
+}
+
+@keyframes rainbowGlow {
+    0% { text-shadow: 3px 3px 0 #ff6b6b, 6px 6px 0 rgba(0,0,0,0.15); }
+    25% { text-shadow: 3px 3px 0 #4caf50, 6px 6px 0 rgba(0,0,0,0.15); }
+    50% { text-shadow: 3px 3px 0 #2196f3, 6px 6px 0 rgba(0,0,0,0.15); }
+    75% { text-shadow: 3px 3px 0 #ff9800, 6px 6px 0 rgba(0,0,0,0.15); }
+    100% { text-shadow: 3px 3px 0 #ff6b6b, 6px 6px 0 rgba(0,0,0,0.15); }
+}
+
+/* Счетчик карточек с двойной анимацией */
+.card-count {
+    background: #ffcc00;
+    border-radius: 25px;
+    padding: 5px 15px;
+    font-weight: bold;
+    font-size: 20px;
+    margin-left: 15px;
+    border: 3px solid #ff9900;
+    box-shadow: 0 4px 0 #e68a00;
+    animation:
+            pulse 2s infinite,
+            floatCount 3s ease-in-out infinite;
+    display: inline-block;
+}
+
+@keyframes floatCount {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.05); }
+}
+
+/* Стили колонок с плавающей анимацией */
+.column__item {
+    background: linear-gradient(145deg, #ffffff, #e0f7fa);
+    border-radius: 35px;
+    padding: 25px 20px;
+    border: 6px solid #2c3e50;
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
+    position: relative;
+    min-width: 320px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: floatColumn 6s ease-in-out infinite;
+    transform-origin: center bottom;
+    max-height: 85vh;
+    overflow: auto;
+}
+
+@keyframes floatColumn {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-8px) rotate(0.5deg); }
+    50% { transform: translateY(0) rotate(0deg); }
+    75% { transform: translateY(-5px) rotate(-0.5deg); }
+}
+
+.column__item::after {
+    content: "";
+    position: absolute;
+    bottom: -50px;
+    left: -50px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(255,223,186,0.4) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    animation: floatBubble 8s ease-in-out infinite;
+}
+
+.column__item::before {
+    content: "";
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 150px;
+    height: 150px;
+    background: radial-gradient(circle, rgba(187,222,251,0.4) 0%, rgba(255,255,255,0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    animation: floatBubble 10s ease-in-out infinite reverse;
+}
+
+@keyframes floatBubble {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(15px, -15px) scale(1.1); }
+    50% { transform: translate(0, -25px) scale(0.95); }
+    75% { transform: translate(-15px, -10px) scale(1.05); }
+}
+
+/* Разные цвета фона для каждой колонки с анимацией градиента */
+.column__item:nth-child(1) {
+    background: linear-gradient(145deg, #fff9e6, #e6f7ff, #fff9e6);
+    background-size: 200% 200%;
+    animation: gradientShift 10s ease infinite;
+    border-color: #ffcc00;
+    box-shadow: 0 12px 25px rgba(255, 204, 0, 0.3);
+}
+
+.column__item:nth-child(2) {
+    background: linear-gradient(145deg, #e6fff2, #e6f0ff, #e6fff2);
+    background-size: 200% 200%;
+    animation: gradientShift 12s ease infinite reverse;
+    border-color: #4caf50;
+    box-shadow: 0 12px 25px rgba(76, 175, 80, 0.3);
+}
+
+.column__item:nth-child(3) {
+    background: linear-gradient(145deg, #ffe6f2, #f5e6ff, #ffe6f2);
+    background-size: 200% 200%;
+    animation: gradientShift 15s ease infinite;
+    border-color: #e91e63;
+    box-shadow: 0 12px 25px rgba(233, 30, 99, 0.3);
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* Стили карточек с новыми анимациями */
+.card__item {
+    background: white;
+    border-radius: 25px;
+    padding: 20px;
+    width: 90%;
+    margin: 15px 0;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    border: 4px solid #2c3e50;
+    position: relative;
+    z-index: 1;
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+    transition: all 0.3s ease;
+    animation:
+            fadeIn 0.5s ease-out,
+            cardFloat 3s ease-in-out infinite;
+    transform-origin: center;
+}
+
+@keyframes cardFloat {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-5px) rotate(0.5deg); }
+}
+
+.card__item:hover {
+    transform: scale(1.05) rotate(2deg) translateY(-3px) !important;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+    animation: none !important;
+    border-color: #ff4b2b;
+    box-shadow: 0 0 20px rgba(255, 75, 43, 0.5);
+}
+
+/* Добавляем анимацию появления новых карточек */
+.card__item::after {
+    content: "✨";
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    font-size: 24px;
+    opacity: 0;
+    animation: sparkle 1s ease-out forwards;
+    animation-delay: 0.3s;
+}
+
+@keyframes sparkle {
+    to { opacity: 1; transform: scale(1.2); }
+}
+
+/* Стили задач с новыми эффектами */
+.task-container {
+    margin-top: 15px;
+    width: 100%;
+}
+
+.task-item {
+    background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+    border-radius: 20px;
+    padding: 12px 15px;
+    margin: 10px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 3px solid #3498db;
+    font-size: 18px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    animation:
+            slideIn 0.4s ease-out,
+            taskBounce 0.3s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.task-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+    z-index: -1;
+}
+
+.task-item:hover::before {
+    transform: translateX(100%);
+}
+
+@keyframes taskBounce {
+    0% { transform: scale(0.95); }
+    50% { transform: scale(1.02); }
+    100% { transform: scale(1); }
+}
+
+/* Анимация при завершении задачи */
+.task-item input[type="checkbox"]:checked + .task-item::after {
+    content: "✓";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 40px;
+    color: #4caf50;
+    font-weight: bold;
+    animation: checkMark 0.5s forwards;
+    z-index: 10;
+}
+
+@keyframes checkMark {
+    to { transform: translate(-50%, -50%) scale(1.5); opacity: 0.9; }
+}
+
+/* Стили чекбоксов с анимацией при нажатии */
+input[type="checkbox"] {
+    width: 30px;
+    height: 30px;
+    margin-left: 15px;
+    cursor: pointer;
+    accent-color: #ff5252;
+    transform: scale(1.5);
+    border: 3px solid #2c3e50;
+    border-radius: 8px;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+    position: relative;
+    z-index: 2;
+}
+
+input[type="checkbox"]:checked {
+    animation: checkboxBounce 0.4s;
+    box-shadow: 0 0 0 3px #4caf50, 0 0 15px rgba(76, 175, 80, 0.7);
+}
+
+input[type="checkbox"]:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: scale(1.3);
+    animation: wiggle 1s infinite;
+}
+
+@keyframes checkboxBounce {
+    0% { transform: scale(1.5); }
+    50% { transform: scale(2); }
+    100% { transform: scale(1.5); }
+}
+
+@keyframes wiggle {
+    0%, 100% { transform: scale(1.3) rotate(0deg); }
+    25% { transform: scale(1.3) rotate(-3deg); }
+    75% { transform: scale(1.3) rotate(3deg); }
+}
+
+/* Стили полей ввода с анимацией фокуса */
+input[type="text"] {
+    width: 90%;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 25px;
+    border: 4px solid #3498db;
+    font-size: 18px;
+    font-family: 'Comic Sans MS', cursive;
+    text-align: center;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+    position: relative;
+    z-index: 2;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #e74c3c;
+    box-shadow:
+            0 0 0 3px rgba(231, 76, 60, 0.3),
+            0 0 15px rgba(231, 76, 60, 0.5);
+    transform: scale(1.03);
+    background: rgba(255, 255, 255, 0.95);
+    animation: pulseBorder 1.5s infinite;
+}
+
+@keyframes pulseBorder {
+    0% { box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3), 0 0 15px rgba(231, 76, 60, 0.5); }
+    50% { box-shadow: 0 0 0 5px rgba(231, 76, 60, 0.5), 0 0 20px rgba(231, 76, 60, 0.8); }
+    100% { box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.3), 0 0 15px rgba(231, 76, 60, 0.5); }
+}
+
+/* Большая красная кнопка с супер-анимациями */
+button {
+    background: linear-gradient(45deg, #ff416c, #ff4b2b);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 20px 45px;
+    font-size: 28px;
+    font-weight: bold;
+    font-family: 'Comic Sans MS', cursive;
+    cursor: pointer;
+    margin: 15px 0;
+    box-shadow:
+            0 10px 0 #cc3a21,
+            0 15px 30px rgba(0, 0, 0, 0.35),
+            inset 0 -5px 0 rgba(0, 0, 0, 0.2);
+    transition: all 0.2s;
+    position: relative;
+    letter-spacing: 1px;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+    animation:
+            heartbeat 1.5s ease-in-out infinite,
+            buttonFloat 2s ease-in-out infinite;
+    z-index: 5;
+    overflow: hidden;
+}
+
+button::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: left 0.7s;
+    z-index: -1;
+}
+
+button:hover::before {
+    left: 100%;
+}
+
+@keyframes buttonFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+button:hover {
+    transform: scale(1.15) translateY(-3px) !important;
+    box-shadow:
+            0 14px 0 #b3331d,
+            0 20px 40px rgba(0, 0, 0, 0.45),
+            inset 0 -3px 0 rgba(0, 0, 0, 0.3);
+    animation: none !important;
+    background: linear-gradient(45deg, #ff1a1a, #e60000);
+}
+
+button:active {
+    transform: scale(0.95) translateY(5px) !important;
+    box-shadow:
+            0 5px 0 #b3331d,
+            0 8px 15px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(45deg, #cc0000, #990000);
+}
+
+button:disabled {
+    background: #bdc3c7;
+    box-shadow: 0 8px 0 #95a5a6;
+    transform: scale(1) !important;
+    cursor: not-allowed;
+    animation: none !important;
+    opacity: 0.8;
+}
+
+/* Супер-анимация для большой красной кнопки в первой колонке */
+.column__item:first-child button {
+    padding: 28px 60px;
+    font-size: 36px;
+    box-shadow:
+            0 14px 0 #cc0000,
+            0 20px 50px rgba(204, 0, 0, 0.55),
+            inset 0 -8px 0 rgba(100, 0, 0, 0.3);
+    background: linear-gradient(45deg, #ff0000, #cc0000, #990000);
+    position: relative;
+    overflow: hidden;
+    z-index: 10;
+    animation:
+            superHeartbeat 1.2s ease-in-out infinite,
+            buttonFloat 2s ease-in-out infinite,
+            rainbowBorder 8s linear infinite;
+    text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.3);
+    letter-spacing: 2px;
+    transform: scale(1.02);
+}
+
+.column__item:first-child button::after {
+    content: "★";
+    position: absolute;
+    font-size: 50px;
+    top: -20px;
+    right: 20px;
+    animation:
+            starFloat 3s ease-in-out infinite,
+            starRotate 4s linear infinite;
+    text-shadow: 0 0 10px yellow, 0 0 20px gold;
+}
+
+.column__item:first-child button::before {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+}
+
+@keyframes superHeartbeat {
+    0% { transform: scale(1.02); }
+    14% { transform: scale(1.12); }
+    28% { transform: scale(1.02); }
+    42% { transform: scale(1.15); }
+    70% { transform: scale(1.02); }
+}
+
+@keyframes starRotate {
+    0% { transform: translateY(0) rotate(0deg); }
+    100% { transform: translateY(-15px) rotate(720deg); }
+}
+
+@keyframes rainbowBorder {
+    0% { box-shadow: 0 14px 0 #cc0000, 0 20px 50px rgba(204, 0, 0, 0.55); }
+    25% { box-shadow: 0 14px 0 #ff9900, 0 20px 50px rgba(255, 153, 0, 0.55); }
+    50% { box-shadow: 0 14px 0 #33cc33, 0 20px 50px rgba(51, 204, 51, 0.55); }
+    75% { box-shadow: 0 14px 0 #3399ff, 0 20px 50px rgba(51, 153, 255, 0.55); }
+    100% { box-shadow: 0 14px 0 #cc0000, 0 20px 50px rgba(204, 0, 0, 0.55); }
+}
+
+/* Стили для поля ввода задач при создании карточки */
+.task-input {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding-left: 16px;
+    animation: slideIn 0.4s ease-out;
+    animation-delay: calc(var(--i, 0) * 0.1s);
+    transform: translateX(-20px);
+}
+
+.task-input input {
+    border-color: #3498db;
+    background: #e3f2fd;
+    transition: all 0.3s;
+}
+
+.task-input input:focus {
+    border-color: #2980b9;
+    background: #bbdefb;
+    transform: scale(1.02);
+    box-shadow: 0 0 10px rgba(41, 128, 185, 0.5);
+}
+
+/* Сообщения об ошибках с улучшенной анимацией */
+.error-message {
+    color: #e74c3c;
+    font-weight: bold;
+    font-size: 20px;
+    margin-top: 10px;
+    text-align: center;
+    background: #fff5f5;
+    padding: 12px 20px;
+    border-radius: 25px;
+    border: 3px solid #f5b8b8;
+    animation:
+            wobble 0.6s ease-in-out,
+            pulseError 2s infinite;
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.error-message::after {
+    content: "⚠️";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    animation: bounce 1s infinite;
+}
+
+@keyframes wobble {
+    0% { transform: translateX(0%); }
+    15% { transform: translateX(-3%) rotate(-1deg); }
+    30% { transform: translateX(2%) rotate(1deg); }
+    45% { transform: translateX(-2%) rotate(-1deg); }
+    60% { transform: translateX(1%) rotate(1deg); }
+    75% { transform: translateX(-1%) rotate(-1deg); }
+    100% { transform: translateX(0%); }
+}
+
+@keyframes pulseError {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+    50% { box-shadow: 0 0 0 8px rgba(231, 76, 60, 0); }
+}
+
+/* Время завершения в третьей колонке */
+.column__item:nth-child(3) .card__item div:last-child {
+    font-weight: bold;
+    color: #e74c3c;
+    margin-top: 10px;
+    font-size: 18px;
+    background: #fff0f0;
+    padding: 8px;
+    border-radius: 15px;
+    border: 3px dashed #ffcccc;
+    animation: pulse 2s infinite;
+    position: relative;
+    overflow: hidden;
+}
+
+.column__item:nth-child(3) .card__item div:last-child::after {
+    content: "🎉";
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    animation: bounce 1s infinite 0.2s;
+}
+
+/* Декоративные элементы с анимацией */
+.column__item::before,
+.column__item::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    z-index: 0;
+}
+
+.column__item:nth-child(1)::before {
+    background: rgba(255, 204, 0, 0.2);
+    width: 120px;
+    height: 120px;
+    top: 20px;
+    left: 20px;
+    animation: floatBubble 7s ease-in-out infinite;
+}
+
+.column__item:nth-child(1)::after {
+    background: rgba(255, 102, 102, 0.15);
+    width: 100px;
+    height: 100px;
+    bottom: 30px;
+    right: 30px;
+    animation: floatBubble 9s ease-in-out infinite reverse;
+}
+
+.column__item:nth-child(2)::before {
+    background: rgba(76, 175, 80, 0.15);
+    width: 110px;
+    height: 110px;
+    top: 30px;
+    right: 20px;
+    animation: floatBubble 8s ease-in-out infinite;
+}
+
+.column__item:nth-child(2)::after {
+    background: rgba(33, 150, 243, 0.15);
+    width: 90px;
+    height: 90px;
+    bottom: 20px;
+    left: 30px;
+    animation: floatBubble 11s ease-in-out infinite reverse;
+}
+
+.column__item:nth-child(3)::before {
+    background: rgba(233, 30, 99, 0.15);
+    width: 100px;
+    height: 100px;
+    top: 25px;
+    left: 35px;
+    animation: floatBubble 10s ease-in-out infinite;
+}
+
+.column__item:nth-child(3)::after {
+    background: rgba(156, 39, 176, 0.15);
+    width: 120px;
+    height: 120px;
+    bottom: 25px;
+    right: 25px;
+    animation: floatBubble 12s ease-in-out infinite reverse;
+}
+
+/* Анимированные облака на фоне */
+#app::after {
+    content: "";
+    position: absolute;
+    top: -50px;
+    right: 10%;
+    width: 150px;
+    height: 80px;
+    background: white;
+    border-radius: 50px;
+    box-shadow:
+            80px 30px 0 white,
+            -60px 20px 0 white,
+            150px -10px 0 white,
+            -120px -20px 0 white;
+    opacity: 0.9;
+    z-index: -1;
+    animation: float 15s linear infinite;
+}
+
+/* Солнце в углу с улучшенной анимацией */
+body::before {
+    content: "☀️";
+    position: fixed;
+    top: 30px;
+    right: 50px;
+    font-size: 80px;
+    animation:
+            sunrise 8s ease-in-out infinite,
+            sunPulse 4s ease-in-out infinite;
+    z-index: 1000;
+    text-shadow:
+            0 0 20px rgba(255, 215, 0, 0.8),
+            0 0 40px rgba(255, 255, 0, 0.7),
+            0 0 60px rgba(255, 255, 100, 0.6);
+    filter: drop-shadow(0 0 10px gold);
+}
+
+@keyframes sunPulse {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.1) rotate(10deg); }
+}
+
+/* Детские рисунки в углах с индивидуальными анимациями */
+body::after {
+    content: "✏️ 🎨 🖍️ 🧸 🚀 🌈";
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    font-size: 28px;
+    letter-spacing: 20px;
+    opacity: 0.9;
+    z-index: 1000;
+    animation: bounceToys 4s ease-in-out infinite;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+}
+
+/* Добавляем пасхалку: падающие звезды */
+@keyframes shootingStar {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+    100% { transform: translate(var(--tx, -100px), var(--ty, 100px)) rotate(360deg); opacity: 0; }
+}
+
+.shooting-star {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 5px;
+    height: 5px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 0 10px 2px white;
+    animation: shootingStar var(--duration, 3s) linear forwards;
+    z-index: 10000;
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+    .column__container {
+        grid-template-columns: 1fr;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .column__item {
+        width: 100%;
+        max-width: none;
+        margin-bottom: 30px;
+    }
+
+    button {
+        padding: 20px 45px;
+        font-size: 26px;
+    }
+
+    .column__item:first-child button {
+        padding: 25px 55px;
+        font-size: 32px;
+    }
+
+    body::before {
+        font-size: 60px;
+        right: 20px;
+    }
+
+    body::after {
+        font-size: 24px;
+        letter-spacing: 10px;
+        bottom: 10px;
+    }
+}
+
+/* Пасхалка: при наведении на колонку появляются звездочки */
+.column__item:hover::before,
+.column__item:hover::after {
+    content: "⭐";
+    font-size: 30px;
+    background: none;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: spin 2s linear infinite;
+    z-index: 5;
+    text-shadow: 0 0 10px gold, 0 0 20px yellow;
+    opacity: 0.9;
+}
+
+/* Добавляем анимацию появления звездочек при наведении */
+.column__item:hover .card__item {
+    animation: cardShine 0.5s ease-out;
+}
+
+@keyframes cardShine {
+    0% { box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); }
+    50% { box-shadow: 0 8px 25px rgba(255, 215, 0, 0.8); }
+    100% { box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); }
+}
+
+/* Анимация для блокировки колонки */
+.blocked-column {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    color: red;
+    background: rgba(255, 255, 255, 0.92);
+    border: 8px dashed red;
+    border-radius: 35px;
+    animation: pulse 1.5s infinite, shake 0.5s infinite;
+    text-shadow: 0 0 10px yellow, 0 0 20px red;
+    z-index: 100;
+}
+
+.blocked-column::before {
+    content: "✋";
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: bounce 1s infinite;
+}
+
+.blocked-column::after {
+    content: "Столбец заблокирован для редактирования";
+    position: absolute;
+    bottom: 30px;
+    font-size: 24px;
+    color: #e74c3c;
+    background: yellow;
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: 3px solid red;
+    animation: pulse 2s infinite;
+}
+
+/* Добавляем падающие звезды на страницу */
+@keyframes createStars {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.star {
+    position: fixed;
+    background: white;
+    border-radius: 50%;
+    animation: shootingStar var(--duration, 3s) linear forwards;
+    z-index: 9999;
+    box-shadow: 0 0 10px 2px white;
+    opacity: 0;
+    animation-delay: var(--delay, 0s);
+    animation-name: createStars, shootingStar;
+    animation-duration: 0.5s, var(--duration, 3s);
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+}
+
+/* Инициализация падающих звезд */
+body {
+    overflow: hidden;
+}
+
+/* Стиль для контейнера приложений */
+#app {
+    position: relative;
+    z-index: 10;
+}
+
