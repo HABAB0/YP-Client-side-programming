@@ -45,7 +45,8 @@ Vue.component('column', {
                 <div v-else>Задача просрочена</div>
             </div>
             <button @click="deleteCard(card.id , column.id)">Х</button>
-            <div v-show="showEdit">
+            
+            <div v-show="card.isRedact">
                 <input 
                     type="text" 
                     v-model="editCardTitle" 
@@ -63,11 +64,12 @@ Vue.component('column', {
                             placeholder="Дедлайн"
                         >
                 </div>
+                <span v-if="editErrors" class="error-message">{{ editErrors }}</span>
             </div>
-            <span v-if="editErrors" class="error-message">{{ editErrors }}</span>
             <button @click="editCard(card.id , column.id)">Изменить</button>
    
             <button v-show="column.id != 3" @click="changeColumn(card.id , column.id)">Вперёд</button>
+            
             <div v-show="column.id == 2">
                 <input 
                         type="text" 
@@ -132,6 +134,7 @@ Vue.component('column', {
                 deadline: this.newCardDeadline,
                 inTime: false,
                 whyBack: this.whyBack,
+                isRedact: false
             };
 
             eventBus.$emit('card-add', {
@@ -168,12 +171,24 @@ Vue.component('column', {
 
         editCard(cardId, columnId) {
 
+
             const column = this.columns.find(column => column.id === columnId);
             const card = column.cards.find(card => card.id === cardId);
 
+
             this.editCardTitle = card.title;
-            this.editCardTask = card.task;
             this.editCardDeadline = card.deadline;
+            this.editCardTask = card.task;
+
+            const editCard = {
+                id: card.id,
+                title: this.editCardTitle,
+                createTime: card.createTime,
+                task: this.editCardTask,
+                deadline: this.editCardDeadline,
+                inTime: false,
+                whyBack: this.whyBack,
+            };
 
             if (this.showEdit) {
                 if (this.editCardTitle === '') {
@@ -190,8 +205,13 @@ Vue.component('column', {
                     this.editErrors = 'Введите дедлайн карточки';
                     return;
                 }
-
             }
+
+            eventBus.$emit('edit-card-add', {
+                card: editCard,
+                columnId: columnId
+            });
+            card.isRedact = !card.isRedact;
             this.showEdit = !this.showEdit;
         }
     },
@@ -288,6 +308,10 @@ let app = new Vue({
             eventBus.$emit('save');
         },
 
+        editAddCard({card, columnId}) {
+
+        },
+
         saveData() {
             localStorage.setItem('columns', JSON.stringify(this.columns));
         }
@@ -301,6 +325,7 @@ let app = new Vue({
         }
 
         eventBus.$on('card-add', this.addCard);
+        eventBus.$on('edit-card-add', this.editAddCard);
         eventBus.$on('delete-card', this.deleteCard);
         eventBus.$on('save', this.saveData);
         eventBus.$on('change-column', this.changeColumn);
