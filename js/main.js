@@ -40,6 +40,7 @@ Vue.component('column', {
             {{ card.createTime }}
             {{ card.deadline }}
             {{ card.task }}
+            <div v-show="card.inTime">HSgfkdjasdlswghdslfjigho[g</div>
             <button @click="deleteCard(card.id , column.id)">Х</button>
             <button v-show="column.id != 3" @click="changeColumn(card.id , column.id)">Переместить</button>
         </div>
@@ -53,6 +54,7 @@ Vue.component('column', {
             newCardDeadline: '',
             taskError: '',
             createTime: '',
+            inTime: false,
         }
     },
     methods: {
@@ -82,9 +84,10 @@ Vue.component('column', {
             const newCard = {
                 id: new Date().toISOString() + Math.random() * 1000,
                 title: this.newCardTitle,
-                createTime: new Date().toLocaleString(),
+                createTime: new Date().toLocaleDateString(),
                 task: this.newCardTask,
                 deadline: this.newCardDeadline,
+                inTime: false,
             };
 
             eventBus.$emit('card-add', {
@@ -162,10 +165,13 @@ let app = new Vue({
             const column = this.columns.find(column => column.id === columnId);
             const card = column.cards.find(card => card.id === cardId);
             const nextColumn = this.columns.find(column => column.id === columnId + 1);
-            console.log(column);
-            console.log(card);
-            console.log(nextColumn);
             const cardIndex = column.cards.findIndex(card => card.id === cardId);
+
+            if (nextColumn === 3) {
+                if (card.deadline > card.createTime) {
+                    card.inTime = true;
+                }
+            }
             column.cards.splice(cardIndex, 1);
 
             nextColumn.cards.push(card);
