@@ -181,19 +181,25 @@ let app = new Vue({
             columns: [
                 {
                     id: 0,
-                    description: 'Первый',
+                    description: 'Запланированные задачи',
                     maxCards: 3,
                     cards: []
                 },
                 {
                     id: 1,
-                    description: 'Второй',
+                    description: 'Задачи в работе',
+                    maxCards: 5,
+                    cards: []
+                },
+                {
+                    id: 3,
+                    description: 'Тестирование',
                     maxCards: 5,
                     cards: []
                 },
                 {
                     id: 2,
-                    description: 'Третий',
+                    description: 'Выполненные задачи',
                     maxCards: null,
                     cards: []
                 },
