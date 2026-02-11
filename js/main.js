@@ -80,7 +80,13 @@ Vue.component('column', {
     },
     template: `
 <div class="column__container">
-    <div v-for="column in columns" :key="column.id" class="column__item">
+    <div 
+        v-for="column in columns" 
+        :key="column.id" 
+        class="column__item"
+        @dragover.prevent
+        @drop="onDrop(column.id)">
+    >
         <h3>{{ column.description }}</h3>
         <div v-show="blockColumn && column.id === 0" class="blocked-column">Столбец заблокирован для редактирования</div>
          <span v-show="column.maxCards" class="card-count">({{ column.cards.length }} / {{ column.maxCards }})</span>
@@ -103,7 +109,13 @@ Vue.component('column', {
             <span v-if="taskError" class="error-message">{{ taskError }}</span>
         </div>
         
-        <div class="card__item" v-for="card in column.cards" :key="card.id">
+        <div 
+            class="card__item" 
+            v-for="card in column.cards" 
+            :key="card.id"
+            draggable="true"
+            @dragstart="onDragStart(card.id, column.id)"
+        >
             {{ card.title }}
             <div v-show="column.id === 2 && card.endTime != null">
                 {{ card.endTime }}
@@ -166,6 +178,19 @@ Vue.component('column', {
             this.newCardTasks = ['', '', ''];
             this.taskError = '';
         },
+
+        onDragStart(cardId, columnId) {
+            eventBus.$emit('drag-start', {
+                cardId: cardId,
+                columnId: columnId
+            });
+        },
+
+        onDrop(columnId) {
+            eventBus.$emit('on-drop', {
+                columnId: columnId
+            });
+        }
     },
     mounted() {
         eventBus.$on('block-column', blockColumn => {
@@ -197,7 +222,10 @@ let app = new Vue({
                     maxCards: null,
                     cards: []
                 },
-            ]
+            ],
+            selectedItems: [],
+            dragItem: null,
+            dragColumn: ''
         }
 },
 methods: {
@@ -286,6 +314,37 @@ methods: {
         }
     },
 
+    onDragStart({cardId, columnId}) {
+        this.dragItem = cardId;
+        this.dragColumn = columnId;
+        console.log(this.dragItem);
+        console.log(this.dragColumn);
+    },
+
+    onDrop({columnId}) {
+
+        const targetColumn = columnId
+        if (!this.dragItem) return
+        let fromColumn, toColumn
+
+        const column = this.columns.find(column => column.id === targetColumn);
+        const card = column.cards.find(card => card.id === this.dragItem);
+
+        if (this.dragColumn === 0 && targetColumn === 1) {
+            toColumn = this.selectedItems
+        }
+
+        const index = column.findIndex(card => card.id === this.dragItem);
+        if (index !== -1) {
+            const [movedItem] = column.splice(index, 1)
+            toColumn.push(movedItem)
+        }
+        // Очищаем dragItem
+        this.dragItem = null
+
+
+    },
+
     saveData() {
         localStorage.setItem('columns', JSON.stringify(this.columns));
     }
@@ -302,5 +361,7 @@ methods: {
         eventBus.$on('task-add', this.addTask);
         eventBus.$on('task-checked', this.onTaskChecked);
         eventBus.$on('save', this.saveData);
+        eventBus.$on('drag-start', this.onDragStart);
+        eventBus.$on('on-drop', this.onDrop);
     },
 })
