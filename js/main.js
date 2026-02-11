@@ -39,6 +39,7 @@ Vue.component('column', {
             {{ card.createTime }}
             {{ card.deadline }}
             {{ card.task }}
+            <div v-if="card.editTime">{{ card.editTime}}</div>
             <div v-show="card.whyBack">{{ card.whyBack }}</div>
             <div v-show="column.id == 3">
                 <div v-if="card.inTime">Задача сделана в срок</div>
@@ -65,8 +66,10 @@ Vue.component('column', {
                         >
                 </div>
                 <span v-if="editErrors" class="error-message">{{ editErrors }}</span>
+                <button @click="editCard(card.id, column.id)">Сохранить</button>
+                <button @click="cancelEditCard(card.id, column.id)">Отмена</button>
             </div>
-            <button @click="editCard(card.id , column.id)">Изменить</button>
+            <button @click="openEditCard(card.id, column.id)" v-show="!card.isRedact">Изменить</button>
    
             <button v-show="column.id != 3" @click="changeColumn(card.id , column.id)">Вперёд</button>
             
@@ -93,7 +96,7 @@ Vue.component('column', {
             inTime: '',
             whyBack: '',
             whyBackError: '',
-            showEdit: false,
+
             editCardTitle: '',
             editCardTask: '',
             editCardDeadline: '',
@@ -165,55 +168,74 @@ Vue.component('column', {
             card.whyBack = this.whyBack;
             this.whyBack = '';
             this.whyBackError = ''
-            console.log(cardId)
             eventBus.$emit('change-column-back', {cardId: cardId, columnId: columnId});
+        },
+
+
+        openEditCard(cardId, columnId) {
+
+            const column = this.columns.find(c => c.id === columnId);
+            const card = column.cards.find(c => c.id === cardId);
+
+            this.editCardTitle = card.title;
+            this.editCardTask = card.task;
+            this.editCardDeadline = card.deadline;
+            this.editErrors = '';
+
+            card.isRedact = true;
         },
 
         editCard(cardId, columnId) {
 
+            const column = this.columns.find(c => c.id === columnId);
+            const card = column.cards.find(c => c.id === cardId);
 
-            const column = this.columns.find(column => column.id === columnId);
-            const card = column.cards.find(card => card.id === cardId);
+            if (this.editCardTitle === '') {
+                this.editErrors = 'Введите заголовок карточки';
+                return;
+            }
 
+            if (this.editCardTask === '') {
+                this.editErrors = 'Введите задачу карточки';
+                return;
+            }
 
-            this.editCardTitle = card.title;
-            this.editCardDeadline = card.deadline;
-            this.editCardTask = card.task;
+            if (this.editCardDeadline === '') {
+                this.editErrors = 'Введите дедлайн карточки';
+                return;
+            }
 
-            const editCard = {
+            const editedCard = {
                 id: card.id,
                 title: this.editCardTitle,
                 createTime: card.createTime,
                 task: this.editCardTask,
                 deadline: this.editCardDeadline,
-                inTime: false,
-                whyBack: this.whyBack,
+                editTime: `${new Date().getFullYear()}-${new Date().getMonth() + 1}-${new Date().getDate()}`,
+                inTime: card.inTime,
+                whyBack: card.whyBack,
+                isRedact: false
             };
 
-            if (this.showEdit) {
-                if (this.editCardTitle === '') {
-                    this.editErrors = 'Введите заголовок карточки';
-                    return;
-                }
-
-                if (this.editCardTask === '') {
-                    this.editErrors = 'Введите задачу карточки';
-                    return;
-                }
-
-                if (this.editCardDeadline === '') {
-                    this.editErrors = 'Введите дедлайн карточки';
-                    return;
-                }
-            }
-
             eventBus.$emit('edit-card-add', {
-                card: editCard,
+                card: editedCard,
                 columnId: columnId
             });
-            card.isRedact = !card.isRedact;
-            this.showEdit = !this.showEdit;
-        }
+
+            card.isRedact = false;
+            this.editErrors = '';
+        },
+
+        cancelEditCard(cardId, columnId) {
+            const column = this.columns.find(c => c.id === columnId);
+            const card = column.cards.find(c => c.id === cardId);
+
+            if (card) {
+                card.isRedact = false;
+            }
+
+            this.editErrors = '';
+        },
     },
 })
 
@@ -309,7 +331,14 @@ let app = new Vue({
         },
 
         editAddCard({card, columnId}) {
+            const column = this.columns.find(c => c.id === columnId);
+            const cardIndex = column.cards.findIndex(c => c.id === card.id);
 
+            if (cardIndex !== -1) {
+                column.cards.splice(cardIndex, 1, card);
+            }
+
+            this.saveData();
         },
 
         saveData() {
