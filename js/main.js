@@ -31,58 +31,132 @@ Vue.component('column', {
                     >
                 </div>
             <button @click="addCard(column.id)">Добавить карточку</button>
-            <span v-if="taskError" class="error-message">{{ taskError }}</span>
+            <span v-show="taskError" class="error-message">{{ taskError }}</span>
         </div>
         
         <div class="card__item" v-for="card in column.cards" :key="card.id">
-            {{ card.title }}
-            {{ card.createTime }}
-            {{ card.deadline }}
-            {{ card.task }}
-            <div v-if="card.editTime">{{ card.editTime}}</div>
-            <div v-show="card.whyBack">{{ card.whyBack }}</div>
-            <div v-show="column.id == 3">
-                <div v-if="card.inTime">Задача сделана в срок</div>
-                <div v-else>Задача просрочена</div>
-            </div>
-            <button @click="deleteCard(card.id , column.id)">Х</button>
-            
-            <div v-show="card.isRedact">
-                <input 
-                    type="text" 
-                    v-model="editCardTitle" 
-                    placeholder="Введите название карточки"
-                >
-                <div class="task-input">
-                        <input 
-                            type="text" 
-                            v-model="editCardTask" 
-                            placeholder="Задача"
-                        >
-                        <input 
-                            type="date" 
-                            v-model="editCardDeadline" 
-                            placeholder="Дедлайн"
-                        >
-                </div>
-                <span v-if="editErrors" class="error-message">{{ editErrors }}</span>
-                <button @click="editCard(card.id, column.id)">Сохранить</button>
-                <button @click="cancelEditCard(card.id, column.id)">Отмена</button>
-            </div>
-            <button @click="openEditCard(card.id, column.id)" v-show="!card.isRedact">Изменить</button>
-   
-            <button v-show="column.id != 3" @click="changeColumn(card.id , column.id)">Вперёд</button>
-            
-            <div v-show="column.id == 2">
-                <input 
-                        type="text" 
-                        v-model="whyBack" 
-                        placeholder="Причина Возврата"
-                    >
-                    <span v-if="whyBackError" class="error-message">{{ whyBackError }}</span>
-                <button @click="changeColumnBack(card.id , column.id)">Назад</button>
-            </div>
+    <div class="card__header">
+        <h4 class="card__title">{{ card.title }}</h4>
+    </div>
+
+    <div class="card__info">
+        <div class="card__info-item">
+            <span class="card__info-label">📅 Создано:</span>
+            <span class="card__info-value">{{ card.createTime }}</span>
         </div>
+        <div class="card__info-item">
+            <span class="card__info-label">⏰ Дедлайн:</span>
+            <span class="card__info-value">{{ card.deadline }}</span>
+        </div>
+        <div class="card__info-item">
+            <span class="card__info-label">📝 Задача:</span>
+            <span class="card__info-value">{{ card.task }}</span>
+        </div>
+    </div>
+
+    <div v-show="card.editTime" class="card__edit-time">
+        <span class="card__edit-icon">✏️</span>
+        <span class="card__edit-label">Изменено:</span>
+        <span class="card__edit-value">{{ card.editTime }}</span>
+    </div>
+
+    <div v-show="card.whyBack" class="card__why-back">
+        <span class="card__back-icon">🔄</span>
+        <span class="card__back-label">Причина возврата:</span>
+        <span class="card__back-value">{{ card.whyBack }}</span>
+    </div>
+
+    <div v-show="column.id == 3" class="card__status">
+        <div v-if="card.inTime" class="card__status-badge card__status-success">
+            ✅ Задача сделана в срок
+        </div>
+        <div v-else class="card__status-badge card__status-late">
+            ⏰ Задача просрочена
+        </div>
+    </div>
+    <div v-show="column.id !== 3" class="card__actions">
+        <button class="card__btn card__btn-delete" @click="deleteCard(card.id, column.id)">
+            🗑️ Удалить
+        </button>
+        
+        <button 
+            class="card__btn card__btn-edit" 
+            @click="openEditCard(card.id, column.id)" 
+            v-show="!card.isRedact"
+        >
+            ✏️ Изменить
+        </button>
+   
+        <button 
+            v-show="column.id != 3" 
+            class="card__btn card__btn-forward" 
+            @click="changeColumn(card.id, column.id)"
+        >
+            ➡️ Вперёд
+        </button>
+    </div>
+
+    <div v-show="card.isRedact" class="card__edit-form">
+        <div class="card__edit-group">
+            <label class="card__edit-label">Название:</label>
+            <input 
+                type="text" 
+                v-model="editCardTitle" 
+                class="card__edit-input"
+                placeholder="Введите название карточки"
+            >
+        </div>
+        
+        <div class="card__edit-group">
+            <label class="card__edit-label">Задача:</label>
+            <input 
+                type="text" 
+                v-model="editCardTask" 
+                class="card__edit-input"
+                placeholder="Задача"
+            >
+        </div>
+        
+        <div class="card__edit-group">
+            <label class="card__edit-label">Дедлайн:</label>
+            <input 
+                type="date" 
+                v-model="editCardDeadline" 
+                class="card__edit-input"
+                placeholder="Дедлайн"
+            >
+        </div>
+        
+        <span v-if="editErrors" class="card__error">{{ editErrors }}</span>
+        
+        <div class="card__edit-buttons">
+            <button class="card__btn card__btn-save" @click="editCard(card.id, column.id)">
+                💾 Сохранить
+            </button>
+            <button class="card__btn card__btn-cancel" @click="cancelEditCard(card.id, column.id)">
+                ❌ Отмена
+            </button>
+        </div>
+    </div>
+
+    <div v-show="column.id == 2" class="card__back-form">
+        <div class="card__back-group">
+            <label class="card__back-label">Причина возврата:</label>
+            <input 
+                type="text" 
+                v-model="whyBack" 
+                class="card__back-input"
+                placeholder="Причина Возврата"
+            >
+        </div>
+        
+        <span v-if="whyBackError" class="card__error">{{ whyBackError }}</span>
+        
+        <button class="card__btn card__btn-back" @click="changeColumnBack(card.id, column.id)">
+            ⬅️ Назад
+        </button>
+    </div>
+</div>
     </div> 
 </div>  
  `,
@@ -122,10 +196,6 @@ Vue.component('column', {
             }
 
             const column = this.columns.find(column => column.id === columnId);
-            if (column.maxCards <= column.cards.length) {
-                this.taskError = 'Достигнуто максимальное количество карточек';
-                return;
-            }
 
             const today = new Date()
 
@@ -247,19 +317,19 @@ let app = new Vue({
                 {
                     id: 0,
                     description: 'Запланированные задачи',
-                    maxCards: 3,
+                    maxCards: null,
                     cards: []
                 },
                 {
                     id: 1,
                     description: 'Задачи в работе',
-                    maxCards: 5,
+                    maxCards: null,
                     cards: []
                 },
                 {
                     id: 2,
                     description: 'Тестирование',
-                    maxCards: 5,
+                    maxCards: null,
                     cards: []
                 },
                 {
