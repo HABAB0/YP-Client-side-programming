@@ -44,7 +44,7 @@ body::after {
 }
 
 #app {
-    width: 100%;
+    width: 95%;
     position: relative;
     background: rgba(255, 255, 255, 0.85);
     border-radius: 40px;
@@ -59,7 +59,7 @@ body::after {
     position: absolute;
     top: 0%;
     left: 0%;
-    width: 100%;
+    width: 95%;
     height: 100%;
     background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%);
     z-index: -1;
