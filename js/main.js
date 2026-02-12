@@ -247,11 +247,6 @@ methods: {
     },
 
     onTaskChecked({ cardId, columnId}) {
-        const column = this.columns.find(column => column.id === columnId);
-        const card = column.cards.find(card => card.id === cardId);
-        if (column.id === 1 && blockColumn === true) {
-
-        }
         this.checkCardProcent(cardId, columnId);
         eventBus.$emit('save');
     },
@@ -262,8 +257,10 @@ methods: {
         while (columnId < 2) {
             const column = this.columns.find(column => column.id === columnId);
             const card = column.cards.find(card => card.id === cardId);
-
+            const cardIndex = column.cards.findIndex(card => card.id === cardId);
+            const secondColumn = this.columns.find(column => column.id === 1);
             const procent = (card.tasks.filter(t => t.checked).length / card.tasks.length) * 100;
+            const firstColumn = this.columns.find(column => column.id === 0);
 
             let nextColumnId = columnId;
 
@@ -282,7 +279,6 @@ methods: {
             if (nextColumn.maxCards && nextColumn.maxCards <= nextColumn.cards.length) {
                 if (nextColumnId === 1) {
                     card.isBlocked = true;
-                    console.log(card.isBlocked)
                     this.columnBlock()
                     break
                 }else {
@@ -294,13 +290,24 @@ methods: {
                 card.endTime = new Date().toLocaleString();
             }
 
-            const cardIndex = column.cards.findIndex(card => card.id === cardId);
             column.cards.splice(cardIndex, 1);
 
             nextColumn.cards.push(card);
+            eventBus.$emit('save');
+
+
+            const blockedCard = firstColumn.cards.find(card => card.isBlocked === true);
+            const blockedCardIndex = firstColumn.cards.findIndex(card => card.isBlocked === true);
+
+            if (blockedCard.isBlocked && secondColumn.maxCards > secondColumn.cards.length ) {
+                console.log('menayem')
+                firstColumn.cards.splice(blockedCardIndex, 1);
+                secondColumn.cards.push(blockedCard);
+                card.isBlocked = false;
+                eventBus.$emit('save');
+            }
 
             columnId = nextColumnId;
-
             this.columnBlock();
             eventBus.$emit('save');
         }
@@ -323,6 +330,7 @@ methods: {
         }else {
             eventBus.$emit('block-column', false);
         }
+        eventBus.$emit('save');
     },
 
     onDragStart({cardId, columnId}) {
