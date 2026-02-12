@@ -77,6 +77,8 @@ Vue.component('task', {
 Vue.component('column', {
     props: {
         columns: Array,
+        blockColumn: Boolean,
+        isBlock: Boolean,
     },
     template: `
 <div class="column__container">
@@ -136,6 +138,7 @@ Vue.component('column', {
             newCardTasks: ['', '', ''],
             taskError: '',
             blockColumn: false,
+            isBlocked: false,
         }
     },
     methods: {
@@ -166,7 +169,8 @@ Vue.component('column', {
                 id: new Date().toISOString() + Math.random() * 1000,
                 title: this.newCardTitle,
                 endTime: null,
-                tasks: tasks
+                tasks: tasks,
+                isBlocked: this.isBlocked,
             };
 
             eventBus.$emit('card-add', {
@@ -243,6 +247,11 @@ methods: {
     },
 
     onTaskChecked({ cardId, columnId}) {
+        const column = this.columns.find(column => column.id === columnId);
+        const card = column.cards.find(card => card.id === cardId);
+        if (column.id === 1 && blockColumn === true) {
+
+        }
         this.checkCardProcent(cardId, columnId);
         eventBus.$emit('save');
     },
@@ -272,6 +281,8 @@ methods: {
 
             if (nextColumn.maxCards && nextColumn.maxCards <= nextColumn.cards.length) {
                 if (nextColumnId === 1) {
+                    card.isBlocked = true;
+                    console.log(card.isBlocked)
                     this.columnBlock()
                     break
                 }else {
