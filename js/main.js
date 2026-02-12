@@ -313,6 +313,7 @@ methods: {
         }
     },
 
+
     columnBlock() {
         const firstColumn = this.columns.find(column => column.id === 0);
         const secondColumn = this.columns.find(column => column.id === 1);
