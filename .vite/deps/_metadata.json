@@ -7,19 +7,19 @@
     "vue": {
       "src": "../../node_modules/vue/dist/vue.runtime.esm-bundler.js",
       "file": "vue.js",
-      "fileHash": "8303a78a",
+      "fileHash": "9f6837fc",
       "needsInterop": false
     },
     "pinia": {
       "src": "../../node_modules/pinia/dist/pinia.mjs",
       "file": "pinia.js",
-      "fileHash": "ff10830e",
+      "fileHash": "cbc21d19",
       "needsInterop": false
     },
     "vue-router": {
       "src": "../../node_modules/vue-router/dist/vue-router.mjs",
       "file": "vue-router.js",
-      "fileHash": "e4ae5523",
+      "fileHash": "dc97fbfb",
       "needsInterop": false
     }
   },

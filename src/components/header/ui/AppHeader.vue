@@ -28,7 +28,7 @@
   </div>
   <div>
     <router-link
-        :to="{ name: 'logout' }"\
+        :to="{ name: 'logout' }"
         class="link"
     >
       Выход
