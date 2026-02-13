@@ -56,7 +56,7 @@ const { userIsAuth } = useUserStore()
     Корзина
   </router-link>
   <div
-      v-show="!userIsAuth"
+      v-show="userIsAuth"
   >
     <router-link
         :to="{ name: 'orders' }"

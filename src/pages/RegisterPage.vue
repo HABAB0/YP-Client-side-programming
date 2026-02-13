@@ -13,7 +13,6 @@ const registerUser = () => {
   accountService.register(userData)
 }
 
-
 </script>
 
 <template>
