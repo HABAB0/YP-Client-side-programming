@@ -2,7 +2,7 @@ import { api } from '@/shared/api.js'
 
 export const productService = {
     catalog: () =>
-        api.get('products').then((res) => res.data),
+        api.get('products').then((res) => res.data.data),
 
     cartAdd: (data) =>
         api.post('cart/{product_id}', data).then((res) => res.data),
