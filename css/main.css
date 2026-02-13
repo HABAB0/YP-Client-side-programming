@@ -71,7 +71,7 @@ body::after {
     border-radius: 30px;
     padding: 15px 25px;
     text-align: center;
-    font-size: 32px;
+    font-size: 20px;
     font-weight: bold;
     text-shadow: 3px 3px 0 #ff6b6b, 6px 6px 0 rgba(0,0,0,0.15);
     margin-bottom: 20px;
@@ -99,7 +99,7 @@ body::after {
     border-radius: 25px;
     padding: 5px 15px;
     font-weight: bold;
-    font-size: 20px;
+    font-size: 15px;
     margin-left: 15px;
     border: 3px solid #ff9900;
     box-shadow: 0 4px 0 #e68a00;
@@ -118,11 +118,11 @@ body::after {
 .column__item {
     background: linear-gradient(145deg, #ffffff, #e0f7fa);
     border-radius: 35px;
-    padding: 25px 20px;
+    padding: 16px 15px;
     border: 6px solid #2c3e50;
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
     position: relative;
-    min-width: 320px;
+    min-width: 200px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -207,14 +207,14 @@ body::after {
 .card__item {
     background: white;
     border-radius: 25px;
-    padding: 20px;
+    padding: 10px;
     width: 90%;
-    margin: 15px 0;
+    margin: 7px 0;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
     border: 4px solid #2c3e50;
     position: relative;
     z-index: 1;
-    font-size: 22px;
+    font-size: 20px;
     font-weight: bold;
     text-align: center;
     transition: all 0.3s ease;
@@ -257,14 +257,13 @@ body::after {
 /* Стили задач с новыми эффектами */
 .task-container {
     margin-top: 15px;
-    width: 100%;
 }
 
 .task-item {
     background: linear-gradient(145deg, #f8f9fa, #e9ecef);
     border-radius: 20px;
-    padding: 12px 15px;
-    margin: 10px 0;
+    padding: 10px 10px;
+    margin: 6px 0;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -321,8 +320,8 @@ body::after {
 
 /* Стили чекбоксов с анимацией при нажатии */
 input[type="checkbox"] {
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
     margin-left: 15px;
     cursor: pointer;
     accent-color: #ff5252;
@@ -362,11 +361,11 @@ input[type="checkbox"]:disabled {
 /* Стили полей ввода с анимацией фокуса */
 input[type="text"] {
     width: 90%;
-    padding: 15px;
-    margin: 10px 0;
+    padding: 8px;
+    margin: 3px 0;
     border-radius: 25px;
     border: 4px solid #3498db;
-    font-size: 18px;
+    font-size: 16px;
     font-family: 'Comic Sans MS', cursive;
     text-align: center;
     box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -398,12 +397,12 @@ button {
     color: white;
     border: none;
     border-radius: 50px;
-    padding: 20px 45px;
-    font-size: 28px;
+    padding: 15px 30px;
+    font-size: 20px;
     font-weight: bold;
     font-family: 'Comic Sans MS', cursive;
     cursor: pointer;
-    margin: 15px 0;
+    margin: 7px 0;
     box-shadow:
             0 10px 0 #cc3a21,
             0 15px 30px rgba(0, 0, 0, 0.35),
@@ -469,8 +468,8 @@ button:disabled {
 
 /* Супер-анимация для большой красной кнопки в первой колонке */
 .column__item:first-child button {
-    padding: 28px 60px;
-    font-size: 36px;
+    padding: 20px 40px;
+    font-size: 25px;
     box-shadow:
             0 14px 0 #cc0000,
             0 20px 50px rgba(204, 0, 0, 0.55),
@@ -528,9 +527,10 @@ button:disabled {
 /* Стили для поля ввода задач при создании карточки */
 .task-input {
     display: flex;
+    justify-content: center;
     align-items: center;
     width: 100%;
-    padding-left: 16px;
+    padding-left: 13px;
     animation: slideIn 0.4s ease-out;
     animation-delay: calc(var(--i, 0) * 0.1s);
     transform: translateX(-20px);
@@ -553,7 +553,7 @@ button:disabled {
 .error-message {
     color: #e74c3c;
     font-weight: bold;
-    font-size: 20px;
+    font-size: 15px;
     margin-top: 10px;
     text-align: center;
     background: #fff5f5;
@@ -598,7 +598,7 @@ button:disabled {
     font-weight: bold;
     color: #e74c3c;
     margin-top: 10px;
-    font-size: 18px;
+    font-size: 14px;
     background: #fff0f0;
     padding: 8px;
     border-radius: 15px;
@@ -757,42 +757,6 @@ body::after {
     box-shadow: 0 0 10px 2px white;
     animation: shootingStar var(--duration, 3s) linear forwards;
     z-index: 10000;
-}
-
-/* Адаптивность */
-@media (max-width: 1200px) {
-    .column__container {
-        grid-template-columns: 1fr;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    .column__item {
-        width: 100%;
-        max-width: none;
-        margin-bottom: 30px;
-    }
-
-    button {
-        padding: 20px 45px;
-        font-size: 26px;
-    }
-
-    .column__item:first-child button {
-        padding: 25px 55px;
-        font-size: 32px;
-    }
-
-    body::before {
-        font-size: 60px;
-        right: 20px;
-    }
-
-    body::after {
-        font-size: 24px;
-        letter-spacing: 10px;
-        bottom: 10px;
-    }
 }
 
 /* Пасхалка: при наведении на колонку появляются звездочки */

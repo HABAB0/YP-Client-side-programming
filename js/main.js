@@ -86,9 +86,7 @@ Vue.component('column', {
         v-for="column in columns" 
         :key="column.id" 
         class="column__item"
-        @dragover.prevent
-        @drop="onDrop(column.id)">
-    >
+        >
         <h3>{{ column.description }}</h3>
         <div v-show="blockColumn && column.id === 0" class="blocked-column">Столбец заблокирован для редактирования</div>
          <span v-show="column.maxCards" class="card-count">({{ column.cards.length }} / {{ column.maxCards }})</span>
@@ -113,10 +111,12 @@ Vue.component('column', {
         
         <div 
             class="card__item" 
-            v-for="card in column.cards" 
+            v-for="(card, index) in column.cards" 
             :key="card.id"
-            draggable="true"
-            @dragstart="onDragStart(card.id, column.id)"
+            :draggable="!blockColumn"
+            @dragstart="onDragStart($event, index, column.id)"
+            @dragover.prevent="onDragOver($event, index, column.id)"
+            @drop="onDrop($event, index, column.id)"
         >
             {{ card.title }}
             <div v-show="column.id === 2 && card.endTime != null">
@@ -139,6 +139,11 @@ Vue.component('column', {
             taskError: '',
             blockColumn: false,
             isBlocked: false,
+
+            isDragging: false,
+            draggedIndex: null,
+            targetIndex: null,
+            draggedColumnId: null
         }
     },
     methods: {
@@ -183,18 +188,47 @@ Vue.component('column', {
             this.taskError = '';
         },
 
-        onDragStart(cardId, columnId) {
+        onDragStart(event, index, columnId) {
+
+            this.draggedIndex = index;
+            this.draggedColumnId = columnId;
+            this.isDragging = true;
+
             eventBus.$emit('drag-start', {
-                cardId: cardId,
+                draggedIndex: index,
                 columnId: columnId
             });
         },
 
-        onDrop(columnId) {
-            eventBus.$emit('on-drop', {
+        onDragOver(event, index, columnId) {
+            event.preventDefault();
+            this.targetIndex = index;
+        },
+
+        onDrop(event, targetIndex, columnId) {
+
+            event.preventDefault();
+
+            if (this.draggedIndex === targetIndex) {
+                this.resetDragState();
+                return;
+            }
+
+            eventBus.$emit('card-reorder', {
+                draggedIndex: this.draggedIndex,
+                targetIndex: targetIndex,
                 columnId: columnId
             });
-        }
+
+            this.resetDragState();
+        },
+
+        resetDragState() {
+            this.isDragging = false;
+            this.draggedIndex = null;
+            this.targetIndex = null;
+            this.draggedColumnId = null;
+        },
     },
     mounted() {
         eventBus.$on('block-column', blockColumn => {
@@ -297,13 +331,12 @@ methods: {
 
 
             const blockedCard = firstColumn.cards.find(card => card.isBlocked === true);
-            const blockedCardIndex = firstColumn.cards.findIndex(card => card.isBlocked === true);
+            const blockedCardIndex = firstColumn.cards.findIndex(card => card?.isBlocked === true);
 
-            if (blockedCard.isBlocked && secondColumn.maxCards > secondColumn.cards.length ) {
-                console.log('menayem')
+            if (blockedCardIndex !== -1 && secondColumn.maxCards > secondColumn.cards.length ) {
                 firstColumn.cards.splice(blockedCardIndex, 1);
                 secondColumn.cards.push(blockedCard);
-                card.isBlocked = false;
+                blockedCard.isBlocked = false;
                 eventBus.$emit('save');
             }
 
@@ -334,35 +367,23 @@ methods: {
         eventBus.$emit('save');
     },
 
-    onDragStart({cardId, columnId}) {
-        this.dragItem = cardId;
-        this.dragColumn = columnId;
-        console.log(this.dragItem);
-        console.log(this.dragColumn);
-    },
+    dragCards({draggedIndex, targetIndex, columnId}) {
 
-    onDrop({columnId}) {
+        const column = this.columns.find(column => column.id === columnId);
+        if (!column) return;
 
-        const targetColumn = columnId
-        if (!this.dragItem) return
-        let fromColumn, toColumn
-
-        const column = this.columns.find(column => column.id === targetColumn);
-        const card = column.cards.find(card => card.id === this.dragItem);
-
-        if (this.dragColumn === 0 && targetColumn === 1) {
-            toColumn = this.selectedItems
+        if (draggedIndex === targetIndex || draggedIndex < 0 || targetIndex < 0 || draggedIndex >= column.cards.length || targetIndex >= column.cards.length) {
+            return;
         }
 
-        const index = column.findIndex(card => card.id === this.dragItem);
-        if (index !== -1) {
-            const [movedItem] = column.splice(index, 1)
-            toColumn.push(movedItem)
-        }
-        // Очищаем dragItem
-        this.dragItem = null
+        const findCard = column.cards.splice(draggedIndex, 1);
+        const draggedCard = findCard[0];
 
+        const insertIndex = targetIndex;
 
+        column.cards.splice(insertIndex, 0, draggedCard);
+
+        this.saveData();
     },
 
     saveData() {
@@ -381,7 +402,6 @@ methods: {
         eventBus.$on('task-add', this.addTask);
         eventBus.$on('task-checked', this.onTaskChecked);
         eventBus.$on('save', this.saveData);
-        eventBus.$on('drag-start', this.onDragStart);
-        eventBus.$on('on-drop', this.onDrop);
+        eventBus.$on('card-reorder', this.dragCards);
     },
 })
