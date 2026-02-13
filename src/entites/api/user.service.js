@@ -1,7 +1,4 @@
 import { api } from '@/shared/api.js'
-import {useUserStore} from "@/entites/store/userStore.js";
-
-const { userIsAuth } = useUserStore()
 
 export const accountService = {
     catalog: () =>
