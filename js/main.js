@@ -379,9 +379,7 @@ methods: {
         const findCard = column.cards.splice(draggedIndex, 1);
         const draggedCard = findCard[0];
 
-        const insertIndex = targetIndex;
-
-        column.cards.splice(insertIndex, 0, draggedCard);
+        column.cards.splice(targetIndex, 0, draggedCard);
 
         this.saveData();
     },
