@@ -5,7 +5,7 @@ Vue.component('column', {
     props: {
         columns: Array,
         exportColumn: Object,
-        cardDayDeadline: Number,
+        cardDayDeadline: Boolean,
     },
     template: `
 <div class="column-wrap">
@@ -33,7 +33,8 @@ Vue.component('column', {
                             placeholder="Дедлайн"
                         >
                     </div>
-                <button @click="addCard(column.id)">Добавить карточку</button>
+                <button v-show="!cardDayDeadline" @click="addCard(column.id)">Добавить карточку</button>
+                <span v-show="cardDayDeadline">Превышен лимит карточек с дедлайном меньше 24 часов </span>
                 <span v-show="taskError" class="error-message">{{ taskError }}</span>
             </div>
             
@@ -162,17 +163,17 @@ Vue.component('column', {
     </div>
         </div>
     </div>
-<!--    <div class="export-column">-->
-<!--        dfgsdgf-->
-<!--        dfghghf-->
-<!--        <div-->
-<!--            v-for="card in exportColumn.cards"-->
-<!--            :key="card.id"-->
-<!--            class="export-item"-->
-<!--        >-->
-<!--            {{ card.title }}-->
-<!--        </div>-->
-<!--    </div>-->
+    <div class="export-column">
+        dfgsdgf
+        dfghghf
+        <div
+            v-for="card in exportColumn.cards"
+            :key="card.id"
+            class="export-item"
+        >
+            {{ card.title }}
+        </div>
+    </div>
 </div>
  `,
     data() {
@@ -191,6 +192,29 @@ Vue.component('column', {
             editCardTask: '',
             editCardDeadline: '',
             editErrors: ''
+        }
+    },
+    computed: {
+        nearDeadlineCardsCount() {
+            let count = 0;
+
+            this.columns.slice(0, 3).forEach(column => {
+                if (!column.cards) return;
+
+                column.cards.forEach(card => {
+
+                    const timeSection = (new Date(card.deadline) - new Date()) / 3600000;
+
+                    if (timeSection <= 24) {
+                        count++;
+                    }
+                });
+            });
+            return count;
+        },
+
+        cardDayDeadline() {
+            return this.nearDeadlineCardsCount >= 2;
         }
     },
     methods: {
@@ -212,16 +236,6 @@ Vue.component('column', {
             }
 
             const today = new Date()
-
-            console.log(cardDayDeadline)
-
-            if (cardDayDeadline > 2) {
-                this.taskError = 'Превышено количество карточек с дедлайном';
-            }
-
-            const column = this.columns.find(column => column.id === columnId);
-
-
 
             const newCard = {
                 id: new Date().toISOString() + Math.random() * 1000,
@@ -379,16 +393,12 @@ let app = new Vue({
                     isRedact: false
                 }]
             },
-            cardDayDeadline: 0
+            cardDayDeadline: false
         }
     },
     methods: {
         addCard({card, columnId}) {
             const column = this.columns.find(column => column.id === columnId);
-
-            if ((new Date(card.newCardDeadline).getTime() - new Date(card.editTime).getDate()) / 3600000 > 2 ) {
-                this.cardDayDeadline += 1
-            }
             column.cards.push(card);
             eventBus.$emit('save');
         },
@@ -402,18 +412,7 @@ let app = new Vue({
             const cardIndex = column.cards.findIndex(card => card.id === cardId);
             const now = new Date()
             if (columnId === 3) {
-                if ((new Date(card.newCardDeadline).getTime() - new Date(card.editTime).getDate()) / 3600000 > 2 ) {
-                    this.cardDayDeadline -= 1
-                }
                 return;
-            }
-
-            if (nextColumn.id === 3) {
-                const allTimeInWork = new Date(card.deadline).getTime() - new Date(card.createTime).getTime()
-                const timeInWork = new Date(now).getTime() - new Date(card.createTime).getTime()
-                if ( timeInWork < allTimeInWork ) {
-                    card.inTime = true;
-                }
             }
 
             column.cards.splice(cardIndex, 1);
@@ -470,8 +469,6 @@ let app = new Vue({
         if (localStore) {
             this.columns = localStore;
         }
-
-        console.log(this.exportColumn);
 
         eventBus.$on('card-add', this.addCard);
         eventBus.$on('edit-card-add', this.editAddCard);
