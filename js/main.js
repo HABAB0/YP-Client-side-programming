@@ -14,6 +14,11 @@ Vue.component('column', {
             <h3>{{ column.description }}</h3>
              <span v-show="column.maxCards" class="card-count">({{ column.cards.length }} / {{ column.maxCards }})</span>
              <span v-show="column.maxCards === null" class="card-count">({{ column.cards.length }})</span>
+             <button
+                v-show="exportColumn.cards && column.cards.length > 0 && column.id === 3"
+                @click="exportCards()"
+                class="btn-export"
+            >Экспортировать карточки</button>
              <div v-if="column.id === 0">
                 <input 
                     type="text" 
@@ -33,12 +38,12 @@ Vue.component('column', {
                             placeholder="Дедлайн"
                         >
                     </div>
-                <button v-show="!cardDayDeadline" @click="addCard(column.id)">Добавить карточку</button>
+                <button v-show="!cardDayDeadline" @click="addCard(column.id)" class="btn-export">Добавить карточку</button>
                 <span v-show="cardDayDeadline">Превышен лимит карточек с дедлайном меньше 24 часов </span>
                 <span v-show="taskError" class="error-message">{{ taskError }}</span>
             </div>
             
-            <div class="card__item" v-for="card in column.cards" :key="card.id">
+        <div class="card__item" v-for="card in column.cards" :key="card.id">
         <div class="card__header">
             <h4 class="card__title">{{ card.title }}</h4>
         </div>
@@ -163,15 +168,50 @@ Vue.component('column', {
     </div>
         </div>
     </div>
-    <div class="export-column">
-        dfgsdgf
-        dfghghf
+    <div v-show="exportColumn.cards" class="export-column">
         <div
             v-for="card in exportColumn.cards"
             :key="card.id"
             class="export-item"
         >
-            {{ card.title }}
+            <div class="card__header">
+            <h4 class="card__title">{{ card.title }}</h4>
+        </div>
+    
+        <div class="card__info">
+            <div class="card__info-item">
+                <span class="card__info-label">📅 Создано:</span>
+                <span class="card__info-value">{{ card.createTime }}</span>
+            </div>
+            <div class="card__info-item">
+                <span class="card__info-label">⏰ Дедлайн:</span>
+                <span class="card__info-value">{{ card.deadline }}</span>
+            </div>
+            <div class="card__info-item">
+                <span class="card__info-label">📝 Задача:</span>
+                <span class="card__info-value">{{ card.task }}</span>
+            </div>
+        </div>
+    
+        <div v-show="card.editTime" class="card__edit-time">
+            <span class="card__edit-icon">✏️</span>
+            <span class="card__edit-label">Изменено:</span>
+            <span class="card__edit-value">{{ card.editTime }}</span>
+        </div>
+    
+        <div v-show="card.whyBack" class="card__why-back">
+            <span class="card__back-icon">🔄</span>
+            <span class="card__back-label">Причина возврата:</span>
+            <span class="card__back-value">{{ card.whyBack }}</span>
+        </div>
+    
+        <div v-if="card.inTime" class="card__status-badge card__status-success">
+            ✅ Задача сделана в срок
+        </div>
+        <div v-else class="card__status-badge card__status-late">
+            ⏰ Задача просрочена
+        </div>
+        </div>
         </div>
     </div>
 </div>
@@ -218,6 +258,10 @@ Vue.component('column', {
         }
     },
     methods: {
+
+        exportCards() {
+            eventBus.$emit('card-export');
+        },
 
         addCard(columnId) {
             if (this.newCardTitle === '') {
@@ -379,24 +423,23 @@ let app = new Vue({
                 },
             ],
             exportColumn: {
-                description: 'Выполненные задачи',
-                maxCards: null,
-                cards: [{
-                    id: '0',
-                    title: 'Карточка 1',
-                    createTime: 'dfg',
-                    task: 'dsfg',
-                    deadline: 'dgfs',
-                    editTime: 'dfsg',
-                    inTime: '',
-                    whyBack: '',
-                    isRedact: false
-                }]
+                cards: []
             },
             cardDayDeadline: false
         }
     },
     methods: {
+
+        exportCards() {
+            const fourthColumn = this.columns.find(column => column.id === 3);
+            console.log(fourthColumn.cards);
+            if (fourthColumn && fourthColumn.cards.length > 0) {
+                this.exportColumn.cards = fourthColumn.cards;
+                console.log(this.exportColumn.cards);
+            }
+            eventBus.$emit('save');
+        },
+
         addCard({card, columnId}) {
             const column = this.columns.find(column => column.id === columnId);
             column.cards.push(card);
@@ -460,14 +503,17 @@ let app = new Vue({
 
         saveData() {
             localStorage.setItem('columns', JSON.stringify(this.columns));
+            localStorage.setItem('exportColumn', JSON.stringify(this.exportColumn));
         }
 
 
     },
     mounted() {
         const localStore = JSON.parse(localStorage.getItem('columns'));
+        const localStoreExport = (JSON.parse(localStorage.getItem('exportColumn')) || []);
         if (localStore) {
             this.columns = localStore;
+            this.exportColumn = localStoreExport;
         }
 
         eventBus.$on('card-add', this.addCard);
@@ -476,5 +522,6 @@ let app = new Vue({
         eventBus.$on('save', this.saveData);
         eventBus.$on('change-column', this.changeColumn);
         eventBus.$on('change-column-back', this.changeColumnBack);
+        eventBus.$on('card-export', this.exportCards);
     },
 })
