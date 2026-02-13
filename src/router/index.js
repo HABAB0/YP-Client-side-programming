@@ -1,6 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-
+import HomeView from '@/pages/HomeView.vue'
+import RegisterPage from "@/pages/RegisterPage.vue";
+import AuthPage from "@/pages/AuthPage.vue";
+import CartPage from "@/pages/CartPage.vue";
+import OrderPage from "@/pages/OrderPage.vue";
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -12,22 +15,22 @@ const router = createRouter({
     {
       path: '/register',
       name: 'register',
-      // component: () => import('../views/AboutView.vue'),
+      component: RegisterPage,
     },
     {
       path: '/auth',
       name: 'auth',
-      // component: () => import('../views/AboutView.vue'),
+      component: AuthPage,
     },
     {
       path: '/cart',
       name: 'cart',
-      // component: () => import('../views/AboutView.vue'),
+      component: CartPage,
     },
     {
       path: '/orders',
       name: 'orders',
-      // component: () => import('../views/AboutView.vue'),
+      component: OrderPage,
     },
     {
       path: '/logout',
