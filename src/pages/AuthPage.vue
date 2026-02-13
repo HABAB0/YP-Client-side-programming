@@ -1,6 +1,6 @@
 <script setup>
 import {reactive} from "vue";
-import {accountService} from "@/entites/api/service.js";
+import {accountService} from "@/entites/api/user.service.js";
 
 const userData = reactive({
   email: '',

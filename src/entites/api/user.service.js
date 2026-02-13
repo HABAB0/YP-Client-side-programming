@@ -4,12 +4,6 @@ import {useUserStore} from "@/entites/store/userStore.js";
 const { userIsAuth } = useUserStore()
 
 export const accountService = {
-    auth: (data) =>
-        api.post('login', data).then((res) => res.data).then((data) => { localStorage.setItem('token', JSON.stringify(data.data.user_token))}).then(() => userIsAuth.value = true),
-
-    register: (data) =>
-        api.post('signup', data).then((res) => res.data).then((data) => { localStorage.setItem('token', JSON.stringify(data.data.user_token))} ),
-
     catalog: () =>
         api.get('products').then((res) => res.data),
 
@@ -27,7 +21,4 @@ export const accountService = {
 
     order: () =>
         api.get('order').then((res) => res.data),
-
-    logout: () =>
-        api.get('logout'),
 }

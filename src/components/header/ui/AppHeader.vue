@@ -1,11 +1,14 @@
 <script setup>
 
 
-import {accountService} from "@/entites/api/service.js";
+import {accountService} from "@/entites/api/user.service.js";
+import {useUserStore} from "@/entites/store/userStore.js";
 
 const logout = () => {
   accountService.logout()
 }
+
+const { userIsAuth } = useUserStore()
 </script>
 
 <template>
@@ -16,7 +19,9 @@ const logout = () => {
   >
     Каталог товаров
   </router-link>
-  <div>
+  <div
+    v-show="!userIsAuth"
+  >
     <router-link
         :to="{ name: 'register' }"
         class="link"
@@ -24,7 +29,9 @@ const logout = () => {
       Регистрация
     </router-link>
   </div>
-  <div>
+  <div
+      v-show="!userIsAuth"
+  >
     <router-link
         :to="{ name: 'auth' }"
         class="link"
@@ -32,7 +39,9 @@ const logout = () => {
       Вход
     </router-link>
   </div>
-  <div>
+  <div
+      v-show="userIsAuth"
+  >
     <a
         class="link"
         @click="logout"
@@ -46,12 +55,16 @@ const logout = () => {
   >
     Корзина
   </router-link>
-  <router-link
-      :to="{ name: 'orders' }"
-      class="link"
+  <div
+      v-show="!userIsAuth"
   >
-    Оформленные заказы
-  </router-link>
+    <router-link
+        :to="{ name: 'orders' }"
+        class="link"
+    >
+      Оформленные заказы
+    </router-link>
+  </div>
 </div>
 </template>
 
