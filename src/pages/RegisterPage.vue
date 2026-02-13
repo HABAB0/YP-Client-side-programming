@@ -1,24 +1,35 @@
 <script setup>
 
 import {reactive} from "vue";
+import {accountService} from "@/entites/api/service.js";
 
 const userData = reactive({
   fio: '',
   email: '',
   password: '',
 })
+
+const registerUser = () => {
+  accountService.register(userData)
+}
+
+
 </script>
 
 <template>
-  <form>
+  <form @submit.prevent="registerUser">
     <p>Регистрация</p>
     <div>
-      <input
-          type="text"
-          required
-          v-model="userData.fio"
-      >
       <label>
+        ФИО:
+        <input
+            type="text"
+            required
+            v-model="userData.fio"
+        >
+      </label>
+      <label>
+        Почтa:
         <input
             type="email"
             required
@@ -26,6 +37,7 @@ const userData = reactive({
         >
       </label>
       <label>
+        Пароль:
         <input
             type="password"
             required
@@ -41,7 +53,7 @@ const userData = reactive({
 <style scoped>
 form {
   background: linear-gradient(135deg, var(--bg-header-alt) 0%, var(--bg-header) 100%);
-  border-radius: 50px 20px 20px 50px; /* Асимметричные углы под изгиб банана */
+  border-radius: 50px 20px 20px 50px;
   padding: 2.5rem;
   box-shadow:
       0 10px 30px rgba(255, 204, 0, 0.4),
@@ -53,7 +65,6 @@ form {
   border: 3px solid rgba(255, 204, 0, 0.7);
 }
 
-/* Декоративный элемент - "кожура" банана */
 form::before {
   content: "";
   position: absolute;
@@ -119,7 +130,7 @@ button {
   padding: 16px;
   font-size: 18px;
   font-weight: bold;
-  border-radius: 30px 15px 30px 15px; /* Изгиб под форму банана */
+  border-radius: 30px 15px 30px 15px;
   cursor: pointer;
   width: 100%;
   transition: all 0.3s ease;
