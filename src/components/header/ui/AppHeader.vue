@@ -8,7 +8,7 @@ const logout = () => {
   accountService.logout()
 }
 
-const { userIsAuth } = useUserStore()
+const store = useUserStore()
 </script>
 
 <template>
@@ -20,7 +20,7 @@ const { userIsAuth } = useUserStore()
     Каталог товаров
   </router-link>
   <div
-    v-show="!userIsAuth"
+    v-show="!store.userIsAuth"
   >
     <router-link
         :to="{ name: 'register' }"
@@ -30,7 +30,7 @@ const { userIsAuth } = useUserStore()
     </router-link>
   </div>
   <div
-      v-show="!userIsAuth"
+      v-show="!store.userIsAuth"
   >
     <router-link
         :to="{ name: 'auth' }"
@@ -40,7 +40,7 @@ const { userIsAuth } = useUserStore()
     </router-link>
   </div>
   <div
-      v-show="userIsAuth"
+      v-show="store.userIsAuth"
   >
     <a
         class="link"
@@ -52,11 +52,12 @@ const { userIsAuth } = useUserStore()
   <router-link
       :to="{ name: 'cart' }"
       class="link"
+      v-show="store.userIsAuth"
   >
     Корзина
   </router-link>
   <div
-      v-show="userIsAuth"
+      v-show="store.userIsAuth"
   >
     <router-link
         :to="{ name: 'orders' }"
@@ -126,6 +127,7 @@ const { userIsAuth } = useUserStore()
   display: inline-block;
   letter-spacing: -0.5px;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
+  cursor: pointer;
 }
 
 .link:hover {

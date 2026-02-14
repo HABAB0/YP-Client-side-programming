@@ -4,14 +4,13 @@ export const productService = {
     catalog: () =>
         api.get('products').then((res) => res.data.data),
 
-    cartAdd: (data) =>
-        api.post('cart/{product_id}', data).then((res) => res.data),
+    cartAdd: (productId) => api.post(`cart/${productId}`).then((res) => res.data),
 
     cart: () =>
-        api.get('products').then((res) => res.data),
+        api.get('cart').then((res) => res.data.data),
 
     cartDelete: () =>
-        api.delete('products{product_id}').then((res) => res.data),
+        api.delete('cart{product_id}').then((res) => res.data),
 
     orderAdd: (data) =>
         api.post('order', data).then((res) => res.data),

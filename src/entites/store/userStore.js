@@ -1,8 +1,12 @@
 import { defineStore } from 'pinia'
 import {ref} from "vue";
-import { createPinia } from 'pinia'
 
 export const useUserStore = defineStore( 'user', () => {
     const userIsAuth = ref(false)
-    return { userIsAuth }
+    function setAuth(status) {
+        userIsAuth.value = status
+        console.log(userIsAuth.value)
+    }
+
+    return { userIsAuth, setAuth }
 })
