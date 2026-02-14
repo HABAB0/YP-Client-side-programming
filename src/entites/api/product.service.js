@@ -17,5 +17,5 @@ export const productService = {
         api.post('order', data).then((res) => res.data),
 
     order: () =>
-        api.get('order').then((res) => res.data),
+        api.get('order').then((res) => res.data.data),
 }

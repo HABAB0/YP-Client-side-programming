@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import {productService} from "@/entites/api/product.service.js";
+import router from "@/router/index.js";
 
 const cartRecords = ref([])
 const loading = ref(false)
@@ -73,6 +74,19 @@ const removeProduct = async (productId) => {
   }
 }
 
+const placeOrder = async () => {
+  if (groupedCart.value.length === 0) return
+
+  try {
+    await productService.orderAdd()
+
+    cartRecords.value = []
+    router.push('/orders')
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 onMounted(() => {
   loadCart()
 })
@@ -108,6 +122,9 @@ onMounted(() => {
         </div>
       </div>
     </div>
+      <div class="cart-actions">
+        <button @click="placeOrder" class="order-btn">Оформить заказ</button>
+      </div>
   </div>
 </div>
 </template>
