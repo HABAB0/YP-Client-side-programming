@@ -31,7 +31,7 @@ const loadCart = async () => {
   try {
     cartRecords.value = await productService.cart()
   } catch (error) {
-    console.error('Ошибка загрузки корзины:', error)
+    console.error(error)
   } finally {
     loading.value = false
   }
@@ -42,12 +42,11 @@ const plusQuantity = async (productId) => {
     await productService.cartAdd(productId)
     await loadCart()
   } catch (error) {
-    console.error('Не удалось добавить товар:', error)
+    console.error(error)
   }
 }
-
 const minusQuantity = async (productId) => {
-  const group = groupedCart.value.find(group => group.if === productId)
+  const group = groupedCart.value.find(group => group.product_id === productId)
   if (!group || group.quantity <= 1) {
     await removeProduct(productId)
     return
@@ -56,21 +55,21 @@ const minusQuantity = async (productId) => {
     await productService.cartDelete(group.cartItemIds[0])
     await loadCart()
   } catch (error) {
-    console.error('Не удалось уменьшить количество:', error)
+    console.error(error)
   }
 }
 
 const removeProduct = async (productId) => {
-  const group = groupedCart.value.find(group => group.id === productId)
+  const group = groupedCart.value.find(group => group.product_id === productId)
   if (!group) return
 
   try {
-    await (
+    await Promise.all(
         group.cartItemIds.map(id => productService.cartDelete(id))
     )
     await loadCart()
   } catch (error) {
-    console.error('Ошибка удаления товара:', error)
+    console.error(error)
   }
 }
 
@@ -85,7 +84,7 @@ onMounted(() => {
 
     <div v-if="groupedCart.length === 0" class="empty-cart">
       Корзина пуста
-      <router-link to="/catalog">Перейти в каталог</router-link>
+      <router-link to="/">Перейти в каталог</router-link>
     </div>
 
     <div v-else>
@@ -102,10 +101,10 @@ onMounted(() => {
             <div class="price">{{ item.price }} ₽</div>
           </div>
           <div class="item-controls">
-          <button @click="minusQuantity(item.id)">–</button>
-          <span>{{ item.quantity }}</span>
-          <button @click="plusQuantity(item.id)">+</button>
-          <button @click="removeProduct(item.id)" class="remove-btn">×</button>
+            <button @click="minusQuantity(item.product_id)">–</button>
+            <span>{{ item.quantity }}</span>
+            <button @click="plusQuantity(item.product_id)">+</button>
+            <button @click="removeProduct(item.product_id)" class="remove-btn">Удалить</button>
         </div>
       </div>
     </div>
@@ -114,7 +113,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Стили как в предыдущем примере */
 .cart-page {
   padding: 2rem;
   max-width: 900px;
@@ -180,8 +178,7 @@ onMounted(() => {
   background: #ff6f00;
   color: white;
   border: none;
-  width: 32px;
-  height: 32px;
+  padding: 14px;
   border-radius: 50%;
   display: flex;
   align-items: center;

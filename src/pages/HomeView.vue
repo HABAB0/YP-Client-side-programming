@@ -19,9 +19,6 @@ const addToCart = async (product) => {
 
   cartStore.addToCart(product.id)
 }
-
-
-
 </script>
 
 <template>
